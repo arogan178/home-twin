@@ -2,6 +2,8 @@
 
 An AI-accessible, open-source digital twin for residential buildings.
 
+**[Website](https://arogan178.github.io/home-twin/)** · **[Try the read-only demo](https://arogan178.github.io/home-twin/demo/)**
+
 Home Twin keeps the building in IFC and gives people and AI agents one local interface for rooms, dimensions, lighting constraints, safe fixture edits, and installation coordinates. IFC remains canonical. The browser plan, Blender, and Unreal are derived views.
 
 ## What the MVP does
