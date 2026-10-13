@@ -5,6 +5,14 @@ on:
     branches: [main]
     paths:
       - "site/**"
+      - "ui/**"
+      - "src/**"
+      - "config/**"
+      - "examples/demo/**"
+      - "scripts/build_demo_model.py"
+      - "scripts/record_demo.py"
+      - "pyproject.toml"
+      - "uv.lock"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -27,8 +35,26 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+      # setup-uv publishes no floating major tag, so pin the release.
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: npm --prefix ui ci
+      # The demo is generated here rather than committed: its recordings are
+      # derived from the plan and the server, and would go stale in the repo.
+      - run: npm --prefix ui run build -- --mode demo --outDir ../build/pages/demo --emptyOutDir
+      - run: uv sync --extra dev
+      - run: uv run --extra dev python scripts/record_demo.py build/pages/demo
+      - run: cp -R site/. build/pages/
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: site
+          path: build/pages
       - id: deployment
         uses: actions/deploy-pages@v5

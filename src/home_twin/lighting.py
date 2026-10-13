@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass, replace
+from itertools import count as numbers_from
 from math import atan2, ceil, cos, radians, sqrt, tan
 from pathlib import Path
 
@@ -1376,6 +1377,7 @@ def optimise_spotlights(
     context: RoomContext,
     constraints: LightingConstraints,
     photometry: Mapping[str, IesPhotometry] | None = None,
+    reserved_tags: Collection[str] = frozenset(),
 ) -> LayoutProposal:
     """Choose a spotlight layout, and the lamp it is built from.
 
@@ -1383,6 +1385,8 @@ def optimise_spotlights(
     result wins. A wide lamp needs more fittings to reach the same target and
     leaves fewer dark samples between them, so which one a room wants is a
     trade the scorer can settle rather than a house-wide assumption.
+
+    New tags skip ``reserved_tags``, the labels other rooms already use.
     """
 
     specs = (fixture,) if isinstance(fixture, SpotlightSpec) else tuple(fixture)
@@ -1399,15 +1403,16 @@ def optimise_spotlights(
         required_clearance_mm = max(constraints.wall_clearance_mm, spec.diameter_mm / 2)
         for count in range(max(1, target_count - 2), target_count + 4):
             points = _grid_points(context, count, constraints, required_clearance_mm=required_clearance_mm)
+            free_tags = (tag for index in numbers_from(1) if (tag := f"SP{index:02d}") not in reserved_tags)
             planned = tuple(
                 PlannedSpotlight(
-                    tag=f"SP{index:02d}",
+                    tag=tag,
                     room_id=context.room.id,
                     point=point,
                     spec=spec,
                     switching_group="MAIN",
                 )
-                for index, point in enumerate(points, start=1)
+                for point, tag in zip(points, free_tags, strict=False)
             )
             layout = LightingLayout(context.room.id, planned)
             report = validate_layout(layout, context, constraints)

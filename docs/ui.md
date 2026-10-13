@@ -60,7 +60,7 @@ view is opened.
 
 **Propose** replaces the current draft with the deterministic constrained layout. Every proposed seat already satisfies edge clearance and minimum spacing, so a proposal can be saved without hand-editing it. It does not modify IFC until you save it.
 
-**Duplicate** (Ctrl+D, or Cmd+D on macOS, or the button in the fixture inspector) copies the selected spotlights and pendants into the unsaved draft. Each copy sits one snap-grid step east (+X) and one step south (-Y) of its original (100 mm if no grid is set), keeps the original's spec, aiming direction and switching group, takes the next free `SP` or `PN` tag, and starts with no notes. The copies become the selection, and one undo removes them all. Ctrl+D only overrides the browser's bookmark shortcut while a spotlight or pendant is selected and focus is not in a text field. Rope lights and switches are not duplicated.
+**Duplicate** (Ctrl+D, or Cmd+D on macOS, or the button in the fixture inspector) copies the selected spotlights and pendants into the unsaved draft. Each copy sits one snap-grid step east (+X) and one step south (-Y) of its original (100 mm if no grid is set), keeps the original's spec, aiming direction and switching group, takes the next `SP` or `PN` tag free across the whole home (saved rooms and other rooms' unsaved drafts), and starts with no notes. The copies become the selection, and one undo removes them all. Ctrl+D only overrides the browser's bookmark shortcut while a spotlight or pendant is selected and focus is not in a text field. Rope lights and switches are not duplicated.
 
 **Distribute** is enabled once 3 or more spotlights are selected; its tooltip gives the count when it is not. The two selected spotlights furthest apart stay where they are. The others are ordered by their position along the line between those two, ties broken by tag, and moved onto that line at equal intervals. Equal spacing wins over the snap grid, so distributed spotlights can sit off the grid. It edits only the draft and is one undo step. The MCP `distribute_fixtures` tool uses the same ordering; the UI action equals calling it with `start` and `end` at the two extreme spotlights.
 
@@ -71,7 +71,7 @@ Clicked, **Spot** and **Pendant** use the point furthest from every ceiling edge
 ## When the server needs restarting
 
 Python is loaded once. A fix edited after the process started is not in it, and
-from the browser that is invisible: the answers simply do not change. The server
+from the browser that is invisible: the answers do not change. The server
 digests its own sources at startup and again on every project read, and the
 header says **Server needs restarting** when the two differ. Rebuilding the UI
 is enough for a page reload; changing Python is not.
@@ -274,7 +274,7 @@ Stair flights that serve or adjoin the room are drawn with their tread nosings
 and an ascending arrow in plan, and as real steps in 3D. They are also
 occluders: a stair mass blocks light.
 
-The plan labels resolved wall-face lengths in millimetres. Rotated rooms no longer use their larger axis-aligned bounding box as a displayed room size. Each spotlight also draws its geometric beam footprint at the configured task-plane elevation, following its stored aiming direction rather than assuming vertical. Windows, glazed sliding doors, and nearby shaft or light-court context use blue plan marks. They remain excluded from the electric-light estimate. The footprint, coverage image, and dark-zone grid do not include IES intensity, reflections, materials, or daylight.
+The plan labels resolved wall-face lengths in millimetres. Rotated rooms do not use their larger axis-aligned bounding box as a displayed room size. Each spotlight also draws its geometric beam footprint at the configured task-plane elevation, following its stored aiming direction rather than assuming vertical. Windows, glazed sliding doors, and nearby shaft or light-court context use blue plan marks. They remain excluded from the electric-light estimate. The footprint, coverage image, and dark-zone grid do not include IES intensity, reflections, materials, or daylight.
 
 ## Replace the IFC
 
@@ -294,7 +294,7 @@ The review screen separates blockers from warnings. **Use this IFC** requires th
 
 The UI removes Blender and Bonsai from supported lighting design, validation, installation export, and plan tracing. The tracing workspace authors points, room outlines, printed controls, rectangular openings, the site, and a calibrated underlay, and builds the verified draft IFC without leaving the browser.
 
-It is still a dimension-led tracing tool. It does not recognise plan symbols, read dimensions out of a PDF, repair arbitrary BIM geometry, or model curved walls, sloped ceilings, or stairs.
+It is still a dimension-led tracing tool. It does not recognise plan symbols, read dimensions out of a PDF, repair arbitrary BIM geometry, or model curved walls or sloped ceilings. Stairs are in the plan source, and the compiler builds them as `IfcStair` with a stepped `IfcStairFlight`, but the tracing workspace cannot draw or edit them yet. It preserves them when it saves.
 
 Use Bonsai for those expert authoring tasks and for final 3D BIM inspection, then return to the browser UI.
 

@@ -1,5 +1,6 @@
 import { AlertTriangle, CalendarDays, Clock, LoaderCircle, MapPin, Sun, SunDim } from "lucide-react";
 
+import { DEMO, DEMO_SUN } from "./demo";
 import { idWords, plainText } from "./displayNames";
 import type { DaylightResponse, LoadState, Site } from "./types";
 
@@ -20,6 +21,9 @@ const KEY_DATES: ReadonlyArray<{ readonly label: string; readonly month: number;
   { label: "Equinox", month: 3, day: 20 },
   { label: "Winter solstice", month: 12, day: 21 },
 ];
+
+// The demo's recorded times are evenly spaced, so the slider steps only between them.
+const DEMO_MINUTES = DEMO_SUN.times.map((time) => Number(time.slice(0, 2)) * 60 + Number(time.slice(3, 5)));
 
 export function clockLabel(minutes: number): string {
   const whole = Math.max(0, Math.min(1439, Math.round(minutes)));
@@ -113,12 +117,19 @@ export function DaylightPanel({
             plan +Y at {site.true_north_deg.toFixed(1)}&deg; from true north
           </p>
 
-          <label className="field">
-            <span>
-              <CalendarDays size={14} /> Date
-            </span>
-            <input type="date" value={date} onChange={(event) => onDateChange(event.currentTarget.value)} />
-          </label>
+          {DEMO ? (
+            <p className="daylight-status">
+              <CalendarDays size={14} /> This demo has precomputed sun geometry for the solstices and the March
+              equinox at {DEMO_SUN.times.join(", ")}.
+            </p>
+          ) : (
+            <label className="field">
+              <span>
+                <CalendarDays size={14} /> Date
+              </span>
+              <input type="date" value={date} onChange={(event) => onDateChange(event.currentTarget.value)} />
+            </label>
+          )}
           <div className="quick-dates">
             {KEY_DATES.map((item) => {
               const year = date.slice(0, 4);
@@ -143,9 +154,9 @@ export function DaylightPanel({
             </span>
             <input
               type="range"
-              min={0}
-              max={1425}
-              step={15}
+              min={DEMO ? DEMO_MINUTES[0] : 0}
+              max={DEMO ? DEMO_MINUTES[DEMO_MINUTES.length - 1] : 1425}
+              step={DEMO ? (DEMO_MINUTES[1] ?? 0) - (DEMO_MINUTES[0] ?? 0) : 15}
               value={minutes}
               onChange={(event) => onMinutesChange(event.currentTarget.valueAsNumber)}
             />

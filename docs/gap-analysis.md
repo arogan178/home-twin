@@ -2,7 +2,7 @@
 
 Research date: 2026-09-01
 
-This analysis uses the projects and primary sources in [the ecosystem review](ecosystem-review.md). The main correction to the original premise is important: a generic IFC MCP server is no longer a gap. IfcOpenShell 0.8.5 includes IfcMCP, and Bonsai MCP already gives Codex an IFC-aware Blender connection. Home Twin should build the residential contract above those tools.
+This analysis uses the projects and primary sources in [the ecosystem review](ecosystem-review.md). The main correction to the original premise is that a generic IFC MCP server is no longer a gap. IfcOpenShell 0.8.5 includes IfcMCP, and Bonsai MCP already gives Codex an IFC-aware Blender connection. Home Twin should build the residential contract above those tools.
 
 ## Residential semantic tools over IFC
 

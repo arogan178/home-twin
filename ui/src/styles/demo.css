@@ -1,0 +1,25 @@
+/* --- read-only demo banner (demo build only) ------------------------------ */
+
+.demo-banner {
+  --demo-banner-h: 28px;
+  height: var(--demo-banner-h);
+  line-height: var(--demo-banner-h);
+  text-align: center;
+  margin: 0;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--warning-soft);
+  color: var(--text);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.demo-banner a {
+  color: var(--accent-ink);
+}
+
+.demo-banner + .app-shell {
+  height: calc(100dvh - 28px);
+}

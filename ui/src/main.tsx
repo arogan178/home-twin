@@ -6,6 +6,8 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { App } from "./App";
+import { DEMO } from "./demo";
+import { DemoBanner } from "./DemoBanner";
 import { createQueryClient } from "./queryClient";
 import "./styles.css";
 
@@ -17,6 +19,7 @@ if (root === null) {
 createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={createQueryClient()}>
+      {DEMO ? <DemoBanner /> : null}
       <App />
     </QueryClientProvider>
   </StrictMode>,

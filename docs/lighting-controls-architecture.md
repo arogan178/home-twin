@@ -80,7 +80,7 @@ Control membership validates existing GlobalIds and deliberate fan-out.
 Photometric output remains explicit about method. Existing spotlight cone and
 lumen approximations continue. Pendants and ropes are geometrically supported
 but excluded from illuminance estimates until a tested point or linear-source
-method is implemented. Their attractive renderer does not upgrade that claim.
+method is implemented. Rendering them does not upgrade that claim.
 
 ## Synthesis
 

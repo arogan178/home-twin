@@ -7,6 +7,7 @@ import type { DraftState, ExportResponse, Finding, Validation } from "./types";
 export function ReviewDock({
   draft,
   analysisPending,
+  unavailableMessage = null,
   report,
   errorCount,
   lightCount,
@@ -21,6 +22,7 @@ export function ReviewDock({
 }: {
   readonly draft: DraftState;
   readonly analysisPending: boolean;
+  readonly unavailableMessage?: string | null;
   readonly report: Validation | null;
   readonly errorCount: number;
   readonly lightCount: number;
@@ -43,7 +45,8 @@ export function ReviewDock({
   return (
     <div className="review-dock">
       <div className="review-status" role="status">
-        {draft.kind === "dirty" && !analysisPending ? <><RefreshCw size={16} /><span>Layout changed</span><small>Waiting for checks</small></> : null}
+        {draft.kind === "dirty" && !analysisPending && unavailableMessage === null ? <><RefreshCw size={16} /><span>Layout changed</span><small>Waiting for checks</small></> : null}
+        {unavailableMessage !== null && !analysisPending ? <><AlertTriangle size={16} /><span>Layout changed</span><small>{unavailableMessage}</small></> : null}
         {draft.kind === "validating" || analysisPending ? <><LoaderCircle className="spin" size={16} /><span>Updating light analysis</span></> : null}
         {draft.kind === "saving" ? <><LoaderCircle className="spin" size={16} /><span>Saving to IFC</span></> : null}
         {report !== null && report.findings.length === 0 ? <><Check size={16} className="review-status-ok" /><span>Checks passed</span><small>{lightCount} lights · {switchCount} switches</small></> : null}

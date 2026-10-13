@@ -69,6 +69,9 @@ export const defaultRopeSpec = {
 
 export type PointMove<Tag extends string> = { readonly tag: Tag; readonly point: Point };
 
+/** Devices in every other room. A Tag is unique across the home, not the room. */
+export type OtherRoomTags = ReadonlyArray<{ readonly tag: string }>;
+
 export function nextInstallationTag(fixtures: ReadonlyArray<{ readonly tag: string }>, prefix: string): FixtureTag {
   let highest = 0;
   for (const fixture of fixtures) {
@@ -112,6 +115,7 @@ export function newSpotlight(
   at: Vec2 | undefined,
   spec: SpotlightSpec,
   switchingGroup: string,
+  otherRooms: OtherRoomTags,
 ): Fixture {
   // A concave room's bounding-box centre can sit outside the ceiling, so the
   // new mark goes to the point furthest from every edge instead.
@@ -123,7 +127,7 @@ export function newSpotlight(
   );
   return {
     kind: "recessed_spotlight",
-    tag: nextInstallationTag(fixtures, "SP"),
+    tag: nextInstallationTag([...otherRooms, ...fixtures], "SP"),
     room_id: design.room.id,
     point: { x: seat.x, y: seat.y, z: design.ceiling.elevation_mm },
     spec,
@@ -138,6 +142,7 @@ export function newPendant(
   fixtures: ReadonlyArray<Fixture>,
   at: Vec2 | undefined,
   switchingGroup: string,
+  otherRooms: OtherRoomTags,
 ): Fixture {
   const seat = at ?? availableInteriorPoint(
     design.ceiling.polygon.outer,
@@ -147,7 +152,7 @@ export function newPendant(
   );
   return {
     kind: "pendant_bulb",
-    tag: nextInstallationTag(fixtures, "PN"),
+    tag: nextInstallationTag([...otherRooms, ...fixtures], "PN"),
     room_id: design.room.id,
     point: { x: seat.x, y: seat.y, z: design.ceiling.elevation_mm },
     spec: defaultPendantSpec,
@@ -156,7 +161,12 @@ export function newPendant(
   };
 }
 
-export function newRopeLight(design: Design, fixtures: ReadonlyArray<Fixture>, switchingGroup: string): Fixture {
+export function newRopeLight(
+  design: Design,
+  fixtures: ReadonlyArray<Fixture>,
+  switchingGroup: string,
+  otherRooms: OtherRoomTags,
+): Fixture {
   const seat = availableInteriorPoint(design.ceiling.polygon.outer, fixtureAnchors(fixtures), 600, 450);
   const ring = design.ceiling.polygon.outer;
   const horizontal = [{ x: seat.x - 400, y: seat.y }, { x: seat.x + 400, y: seat.y }];
@@ -164,7 +174,7 @@ export function newRopeLight(design: Design, fixtures: ReadonlyArray<Fixture>, s
   const path2d = horizontal.every((point) => pointInPolygon(point, ring)) ? horizontal : vertical;
   return {
     kind: "rope_light",
-    tag: nextInstallationTag(fixtures, "RL"),
+    tag: nextInstallationTag([...otherRooms, ...fixtures], "RL"),
     room_id: design.room.id,
     path: path2d.map((point) => ({ ...point, z: design.ceiling.elevation_mm })),
     spec: defaultRopeSpec,
@@ -179,12 +189,13 @@ export function newWallSwitch(
   fixtures: ReadonlyArray<Fixture>,
   switches: ReadonlyArray<WallSwitch>,
   switchingGroup: string,
+  otherRooms: OtherRoomTags,
 ): WallSwitch | null {
   const seat = deepestInteriorPoint(design.ceiling.polygon.outer);
   const placement = findWallSwitchSeat(design.walls, design.openings, seat, 86);
   if (placement === null) return null;
   return {
-    tag: nextInstallationTag([...fixtures, ...switches], "SW"),
+    tag: nextInstallationTag([...otherRooms, ...fixtures, ...switches], "SW"),
     room_id: design.room.id,
     host_wall_id: placement.host_wall_id,
     offset_mm: placement.offset_mm,
@@ -196,15 +207,12 @@ export function newWallSwitch(
   };
 }
 
-/**
- * A movement sensor at the next free ceiling seat. `modelTags` must hold every
- * tag in the model: a Tag is unique across the model, not the room.
- */
+/** A movement sensor at the next free ceiling seat. */
 export function newSensor(
   design: Design,
   fixtures: ReadonlyArray<Fixture>,
   sensors: ReadonlyArray<Sensor>,
-  modelTags: ReadonlyArray<{ readonly tag: string }>,
+  otherRooms: OtherRoomTags,
   switchingGroup: string,
 ): Sensor {
   const seat = availableInteriorPoint(
@@ -216,7 +224,7 @@ export function newSensor(
   // A new sensor switches the group being worked on, which is what a PIR in a
   // room of lights does. A fan carries no group, so those are set by hand.
   return {
-    tag: nextInstallationTag([...modelTags, ...sensors], "PIR"),
+    tag: nextInstallationTag([...otherRooms, ...fixtures, ...sensors], "PIR"),
     room_id: design.room.id,
     point: { x: seat.x, y: seat.y, z: design.ceiling.elevation_mm },
     run_on_minutes: sensors.at(-1)?.run_on_minutes ?? 20,
@@ -265,6 +273,7 @@ export function duplicates(
   switches: ReadonlyArray<WallSwitch>,
   selected: ReadonlySet<FixtureTag>,
   snapMm: number,
+  otherRooms: OtherRoomTags,
 ): Fixture[] {
   const originals = placedFixtures(fixtures).filter((fixture) => selected.has(fixture.tag));
   const offset = duplicateOffsetMm(snapMm);
@@ -272,7 +281,7 @@ export function duplicates(
   for (const original of originals) {
     const { id: _globalId, ...rest } = original;
     const tag = nextInstallationTag(
-      [...fixtures, ...switches, ...copies],
+      [...otherRooms, ...fixtures, ...switches, ...copies],
       original.kind === "recessed_spotlight" ? "SP" : "PN",
     );
     const point = { x: original.point.x + offset.x, y: original.point.y + offset.y, z: original.point.z };

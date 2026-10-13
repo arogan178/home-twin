@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { mergeRoomDrafts } from "./roomDrafts";
+import { mergeRoomDrafts, tagsOutsideRoom } from "./roomDrafts";
 import { WholePlanSchema, type Fixture, type RoomId } from "./types";
 
 function spotlight(tag: string, roomId: RoomId): Fixture {
@@ -93,5 +93,9 @@ describe("whole-plan room drafts", () => {
       ["SP02"],
     ]);
     expect(plan.rooms.every((room) => room.fixtures.length === 0)).toBe(true);
+
+    const drafts = { B: { fixtures: [spotlight("SP06", "B" as RoomId)], switches: [] } };
+    expect(tagsOutsideRoom(plan, drafts, "A" as RoomId).map((item) => item.tag)).toEqual(["SP06"]);
+    expect(tagsOutsideRoom(plan, drafts, "B" as RoomId)).toEqual([]);
   });
 });

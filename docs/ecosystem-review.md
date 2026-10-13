@@ -121,7 +121,7 @@ The optimiser can operate on the first two tiers in the MVP, provided every resu
 2. **Generic IFC access over MCP:** official IfcMCP.
 3. **Live Blender/Bonsai inspection from Codex:** Bonsai MCP.
 4. **Manual IFC authoring and visual QA:** Bonsai in Blender.
-5. **Browser IFC viewing:** That Open Components and web-ifc, if a general IFC viewer becomes worth maintaining. It has not yet: the browser 3D view draws derived lighting-design geometry rather than arbitrary IFC entities, so it uses three.js (MIT) directly and loads on demand. Adopt Components the day the requirement becomes "open any IFC and browse it".
+5. **Browser IFC viewing:** That Open Components and web-ifc, if a general IFC viewer becomes worth maintaining. It has not yet: the browser 3D view draws derived lighting-design geometry rather than arbitrary IFC entities, so it uses three.js (MIT) directly and loads on demand.
 6. **Accurate lighting calculation:** Radiance, with frads or Honeybee as workflow references.
 7. **IES/LDT parsing concepts and tests:** Honeybee Radiance, eulumdat-rs, and eulumdat-py, subject to licence compatibility.
 8. **MCP interaction patterns:** ifc-lite's tool taxonomy and error model, bimq's deterministic cited queries, and Bonsai MCP's image loop.
@@ -165,7 +165,7 @@ The reviewed sources do not provide these as a coherent, tested, local-first pac
 - installation CSV/JSON/SVG drawings generated from canonical IFC;
 - an end-to-end agent loop that queries IFC, proposes, validates, commits, screenshots in Bonsai, adjusts, saves, and exports.
 
-That is the project boundary. The independent open-source opportunity is not "IFC MCP" anymore. It is a residential BIM and lighting domain layer that uses the existing IFC MCP and editor ecosystem well.
+That is the project boundary. The independent open-source opportunity is a residential BIM and lighting domain layer that uses the existing IFC MCP and editor ecosystem well.
 
 ## Recommended dependency and integration posture
 

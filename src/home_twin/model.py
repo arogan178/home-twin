@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from enum import StrEnum
 from math import isfinite
@@ -627,15 +627,47 @@ class HomeTwin:
         return calculate_spacing(self.get_lighting_layout(room_id))
 
     def validate_lighting_layout(self, layout: LightingLayout) -> ValidationReport:
-        return self.analyse_lighting_layout(layout).validation
+        report = self.analyse_lighting_layout(layout).validation
+        return self._with_home_wide_tags(report, layout.room_id, (item.tag for item in layout.fixtures))
 
     def validate_room_lighting_design(self, design: RoomLightingDesign) -> ValidationReport:
         from home_twin.lighting import validate_room_lighting
 
-        return validate_room_lighting(
+        report = validate_room_lighting(
             design,
             self._repository.get_room_context(design.room_id),
             self.constraints,
+        )
+        tags = (item.tag for item in (*design.luminaires, *design.switches, *design.sensors))
+        return self._with_home_wide_tags(report, design.room_id, tags)
+
+    def tags_outside_room(self, room_id: str) -> frozenset[str]:
+        """Installation tags already used by devices in every other room."""
+
+        return frozenset(tag for tag, other in self._repository.get_installation_tags() if other != room_id)
+
+    def _with_home_wide_tags(
+        self, report: ValidationReport, room_id: str, tags: Iterable[str]
+    ) -> ValidationReport:
+        # The installation export lists the whole home, so an electrician
+        # must never see the same label in two rooms.
+        from home_twin.validation import Finding, Severity, ValidationReport
+
+        elsewhere = self.tags_outside_room(room_id)
+        clashes = sorted(set(tags) & elsewhere)
+        return ValidationReport(
+            (
+                *report.findings,
+                *(
+                    Finding(
+                        "duplicate_fixture_tag",
+                        Severity.ERROR,
+                        f"Installation tag {tag!r} is already used in another room",
+                        (tag,),
+                    )
+                    for tag in clashes
+                ),
+            )
         )
 
     def analyse_room_lighting_design(
@@ -815,6 +847,7 @@ class HomeTwin:
             self._repository.get_room_context(room_id),
             self.constraints,
             photometry,
+            reserved_tags=self.tags_outside_room(room_id),
         )
 
     def add_spotlight(

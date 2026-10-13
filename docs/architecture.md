@@ -504,7 +504,7 @@ They are 80 mm deep rather than the full 100 mm plenum where a downstand beam's
 underside sits 80 mm over the gypsum. A room that states
 no structural ceiling is refused rather than given an assumed plenum.
 
-The section inside the slot — upstand, lip, channel and diffuser — is a finish
+The section inside the slot (upstand, lip, channel and diffuser) is a finish
 allowance in `ceilingGypsum.ts`, the way the concealed-cove section already is.
 No luminaire is authored: the lip is the provision for a strip that has not been
 selected, so nothing there carries a lumen figure. The lip sits in the bottom
@@ -514,7 +514,7 @@ that it shows the slab 100 mm above it; a lip halfway up reads as a moulding.
 A slot needs something behind it. Walls are drawn to the structural ceiling
 rather than to the gypsum, so the reveal has a wall face in it, and the run
 draws a soffit strip across its top when the structural ceiling plane is not
-already being drawn. Without both, the gypsum simply ended and the lip floated
+already being drawn. Without both, the gypsum ended and the lip floated
 against nothing.
 
 A diagonal wall can be several faces a few degrees apart, and the reveal follows
@@ -535,7 +535,7 @@ close to free; `bounds` remains the fallback for anything with no geometry.
 the corners follow, so a corner where a revealed wall meets one the gypsum still
 touches slides along that wall rather than opening a triangle. It also derives a
 bulkhead's fascia returns from the soffit ring, keeping the edges that face the
-room and dropping the ones that die into a wall — without them a bulkhead
+room and dropping the ones that die into a wall. Without them a bulkhead
 drop read as a plate floating below the ceiling. That derivation also finds
 returns that the hand-written list in `add_cabinet_bulkhead.py` omits.
 

@@ -9,8 +9,8 @@ record printed dimensions as controls, add openings, state the site, then build
 the verified draft IFC.
 
 Bonsai is still the right tool for expert BIM authoring, curved walls, sloped
-ceilings, stairs, and repairing broken relationships. It is no longer needed for
-tracing a straight-walled residential plan or positioning spotlights.
+ceilings, drawing stairs, and repairing broken relationships. It is no longer
+needed for tracing a straight-walled residential plan or positioning spotlights.
 
 ## What it edits
 
@@ -333,6 +333,7 @@ to the source rather than a restart.
 
 This is a dimension-led tracing tool for straight walls, flat ceilings, and
 rectangular openings. It does not recognise plan symbols, read dimensions from a
-PDF, repair arbitrary BIM geometry, or model curved walls, sloped ceilings, or
-stairs. Treat the result as a reviewed design trace, not an as-built survey,
+PDF, repair arbitrary BIM geometry, or model curved walls or sloped ceilings. The workspace
+cannot draw or edit stairs. The plan source and compiler do model them, and the
+workspace keeps any `stairs` entries in `plan.yaml` when it saves. Treat the result as a reviewed design trace, not an as-built survey,
 until it is checked on site. See [the plan import notes](plan-import.md).

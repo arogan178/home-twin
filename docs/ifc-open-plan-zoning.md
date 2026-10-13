@@ -13,8 +13,8 @@ Anything taken from a secondary source is labelled as such.
 
 ## Answer in one line
 
-Option 3, `IfcZone`, is excluded by the specification itself — it cannot carry
-geometry. Options 1, 2 and 4 are all legal. Option 4 — no entity — is what this
+Option 3, `IfcZone`, is excluded by the specification itself: it cannot carry
+geometry. Options 1, 2 and 4 are all legal. Option 4, no entity, is what this
 model should keep, because a dining area here is a lighting and furniture region
 and IFC gives it no anchor the geometry does not already provide. If it ever
 needs durable identity, `IfcSpatialZone` is the entity buildingSMART designed for
@@ -129,7 +129,7 @@ non-overlapping*"
 ([IfcSpace, IFC 4.3.2.0](https://standards.buildingsmart.org/IFC/DEV/IFC4_3/HTML/lexical/IfcSpace.html)).
 Read literally, the 4.3 wording says an eventual restriction would apply between
 siblings of equal `CompositionType`, not between a PARTIAL child and its ELEMENT
-parent — which is the arrangement a dining area would use. That is a permissive
+parent, which is the arrangement a dining area would use. That is a permissive
 reading of a NOTE about what other documents might say, so it is weak evidence,
 but it is the only evidence there is.
 
@@ -154,7 +154,7 @@ the definition of the parts and the parts depend on the existence of the whole."
 ([IfcRelAggregates](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/ifcrelaggregates.htm))
 
 Conclusion: a partial space covering only part of its parent breaks no published
-rule. There is also no published rule that makes it *meaningful* — nothing in
+rule. There is also no published rule that makes it *meaningful*: nothing in
 IFC4 says whether a parent's area is net of its partial children or inclusive of
 them. That ambiguity is the real cost of option 1, not a validation failure.
 
@@ -209,7 +209,7 @@ assignment in addition to the hierarchical spatial containment."
 
 ## May spatial zones overlap each other and their parent space?
 
-Yes, by definition — "a non-hierarchical and *potentially overlapping*
+Yes, by definition: "a non-hierarchical and *potentially overlapping*
 decomposition of the project"
 ([IfcSpatialZone](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/ifcspatialzone.htm),
 [IfcSpatialElement](https://standards.buildingsmart.org/IFC/RELEASE/IFC4/ADD2_TC1/HTML/link/ifcspatialelement.htm)).
@@ -253,15 +253,15 @@ boundaries the reference to `IfcVirtualElement` is now mandatory."
 
 Read carefully, the sanctioned pattern is: two `IfcSpace` instances that are
 *siblings* and adjacent, sharing one `IfcVirtualElement` referenced by two
-`IfcRelSpaceBoundary` instances — "All instances of `IfcRelSpaceBoundary` given
+`IfcRelSpaceBoundary` instances: "All instances of `IfcRelSpaceBoundary` given
 at the adjacent spaces share the same instance of `IfcVirtualElement`."
 That is a *partition* of an open plan into two peer rooms, each with its own
 area, boundaries and containment. It is not a sub-area of a room.
 
 The specification never says "use a virtual boundary to subdivide an open plan
 into functional areas." It says virtual boundaries exist for adjacent
-undivided spaces. If Home Twin's open plan were genuinely two rooms —
-separately scheduled, separately measured, separately named on the plan — this
+undivided spaces. If Home Twin's open plan were genuinely two rooms
+(separately scheduled, separately measured, separately named on the plan), this
 would be the correct pattern, and the boundary between them would be virtual. It
 is not the pattern for a dining table's neighbourhood inside one room.
 
@@ -280,7 +280,7 @@ alone, in the specification's own words:
 
 A dining area is by definition a different shape and size from the open plan it
 sits in, so `IfcZone` cannot express it without first making the dining area a
-space — which is option 1 again, with an extra grouping object on top.
+space, which is option 1 again, with an extra grouping object on top.
 
 Its `WR1` also blocks the obvious lighting use: "Only objects of type `IfcSpace`,
 `IfcZone` and `IfcSpatialZone` are allowed as RelatedObjects." Verified: assigning
@@ -289,7 +289,7 @@ an `IfcLightFixture` to an `IfcZone` and running `ifcopenshell.validate` with
 encodes the same restriction in
 `ifcopenshell/util/system.py`: `"IfcZone": ("IfcZone", "IfcSpace", "IfcSpatialZone")`.
 That is why `docs/lighting-controls-architecture.md` is right to map control
-groups to plain `IfcGroup` rather than `IfcZone` — `IfcGroup` accepts any
+groups to plain `IfcGroup` rather than `IfcZone`: `IfcGroup` accepts any
 `IfcObjectDefinition`, `IfcZone` does not.
 
 ## What exporters and MVDs actually do
@@ -349,16 +349,16 @@ become `IfcSpace`. `SpatialElementExporter.ExportSpatialElement` is documented a
 default: "Force the default export to IfcSpace for Spatial Element if it is set
 to UnKnown"
 ([SpatialElementExporter.cs](https://github.com/Autodesk/revit-ifc/blob/master/Source/Revit.IFC.Export/Exporter/SpatialElementExporter.cs)).
-An Area gets a dummy height — "For area spaces, we assign a dummy height (1
+An Area gets a dummy height ("For area spaces, we assign a dummy height (1
 unit), as we are not allowed to export IfcSpaces without a volumetric
-representation" — and no space boundaries.
+representation") and no space boundaries.
 
 Area Schemes become `IfcGroup`, not `IfcZone`: "Provides methods to export an
 AreaScheme element as IfcGroup"
 ([AreaSchemeExporter.cs](https://github.com/Autodesk/revit-ifc/blob/master/Source/Revit.IFC.Export/Exporter/AreaSchemeExporter.cs)).
 `IfcZone` comes from the MEP Zone element
 ([ZoneExporter.cs](https://github.com/Autodesk/revit-ifc/blob/master/Source/Revit.IFC.Export/Exporter/ZoneExporter.cs))
-or from `ZoneName*` shared parameters on rooms — "The export of IFCZones from
+or from `ZoneName*` shared parameters on rooms: "The export of IFCZones from
 Revit is realized through a set of shared parameters that are assigned to room
 objects"
 ([Revit IFC Manual 2.0, p. 40](https://damassets.autodesk.net/content/dam/autodesk/www/pdfs/revit-ifc-guide-high-res.pdf)).
@@ -381,7 +381,7 @@ filed internally as Revit-217482).
 
 ### Archicad
 
-An Archicad Zone maps to `IfcSpace` in the built-in type mapping table — the row
+An Archicad Zone maps to `IfcSpace` in the built-in type mapping table; the row
 reads "Zone / IFCSpace / IFCSpaceType"
 ([Built-in IFC Type Mapping](https://help.graphisoft.com/AC/29/INT/_AC29_Help/121_IFC/121_IFC-51.htm)).
 `IfcZone` grouping is supported through IFC Assignments and, unlike Revit, nests:
@@ -398,7 +398,7 @@ documented refusal.
 
 Revit's sanctioned way to split an open plan is Room Separation Lines, which
 produce separate Rooms. Archicad's is Zone Boundary lines, which produce separate
-Zones. Both produce peer spaces, not sub-areas — the same conclusion the virtual
+Zones. Both produce peer spaces, not sub-areas, the same conclusion the virtual
 boundary section reaches from the schema side.
 
 ## Recommendation for the dining area in this model
@@ -413,7 +413,7 @@ geometry does not already provide, and no source reviewed requires an entity for
 a functional region.
 
 That is not the same as "IFC has nothing for this". `IfcSpatialZone` is a good
-fit on paper and is the right answer if the region ever needs durable identity —
+fit on paper and is the right answer if the region ever needs durable identity:
 a saved lighting scene, a Home Assistant area, a coverage target an agent
 re-reads. What it does not yet have here is a consumer.
 
@@ -421,21 +421,21 @@ Costs if the decision is revisited:
 
 | Option | What it costs | What it buys |
 |---|---|---|
-| **1. Nested `IfcSpace`, `PARTIAL`** | A traced polygon in `plan.yaml` for a boundary with no physical referent — inventing surveyed geometry the tracing rules exist to prevent. `get_rooms()` at `src/home_twin/ifc.py:336` enumerates every `IfcSpace`, so the dining area appears as a room in MCP, the room rail, and every fixture-placement target unless filtered by Pset the way daylight sources already are. Quantities become ambiguous: no source says whether the parent's area is net or gross of its partial children. Neither Revit nor Archicad can produce or consume it. | A first-class room with its own boundaries, coverings, and containment. Correct only if the dining area is really a separate room. |
-| **2. `IfcSpatialZone`** | New code, because nothing in the repo enumerates `IfcSpatialZone` — which is also why it costs nothing in the existing read path. `PredefinedType = LIGHTING` fits ("a lighting zone; a daylight zone, or an artificial lighting zone"); a dining area as such needs `USERDEFINED` plus `ObjectType`. Poor interoperability: RV 1.2 omits the relationship it needs, Revit reaches it only through category mapping with a known crash, Archicad never mentions it. | The entity buildingSMART defines for exactly this. Overlaps legitimately, carries its own geometry, and can reference both the open plan and the fixtures while they stay contained in the space. Verified to author, save, reopen, and validate cleanly. |
+| **1. Nested `IfcSpace`, `PARTIAL`** | A traced polygon in `plan.yaml` for a boundary with no physical referent, inventing surveyed geometry the tracing rules exist to prevent. `get_rooms()` at `src/home_twin/ifc.py:336` enumerates every `IfcSpace`, so the dining area appears as a room in MCP, the room rail, and every fixture-placement target unless filtered by Pset the way daylight sources already are. Quantities become ambiguous: no source says whether the parent's area is net or gross of its partial children. Neither Revit nor Archicad can produce or consume it. | A first-class room with its own boundaries, coverings, and containment. Correct only if the dining area is really a separate room. |
+| **2. `IfcSpatialZone`** | New code, because nothing in the repo enumerates `IfcSpatialZone`, which is also why it costs nothing in the existing read path. `PredefinedType = LIGHTING` fits ("a lighting zone; a daylight zone, or an artificial lighting zone"); a dining area as such needs `USERDEFINED` plus `ObjectType`. Poor interoperability: RV 1.2 omits the relationship it needs, Revit reaches it only through category mapping with a known crash, Archicad never mentions it. | The entity buildingSMART defines for exactly this. Overlaps legitimately, carries its own geometry, and can reference both the open plan and the fixtures while they stay contained in the space. Verified to author, save, reopen, and validate cleanly. |
 | **3. `IfcZone`** | Ruled out by the specification, not by cost. It cannot carry geometry, and `WR1` rejects the light fixtures. | Nothing this case needs. |
 | **4. No entity** | Nothing. The region stays derived and disposable. | Honesty. No claim the model cannot support. |
 
 If option 2 is ever taken, add it the way this repository adds any object type:
 a domain type, an explicit IFC mapping, geometry and semantic validation, a
-synthetic save/reload test, and a note here — not a string in YAML.
+synthetic save/reload test, and a note here, not a string in YAML.
 
 ### One unrelated fix this research surfaced
 
 A split-level area is aggregated into its parent room with `CompositionType`
 unset on both, which defaults to `ELEMENT` over `ELEMENT`. The *Spatial
 Composition* concept template asks for `ELEMENT` over `PARTIAL`. Nothing rejects
-the current file — the template is mvdXML, not an EXPRESS rule, and
-`ifcopenshell.validate` with `express_rules=True` passes either way (verified) —
+the current file (the template is mvdXML, not an EXPRESS rule, and
+`ifcopenshell.validate` with `express_rules=True` passes either way, verified),
 but setting the child space to `PARTIAL` in `src/home_twin/plan_draft.py` is a one-line
 change that makes the model say what the specification means.

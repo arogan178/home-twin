@@ -28,6 +28,7 @@ import { AppTopBar } from "./AppTopBar";
 import { BakePanel } from "./BakePanel";
 import { CeilingPlan, PLAN_DROP_TYPE } from "./CeilingPlan";
 import { DaylightPanel } from "./DaylightPanel";
+import { DEMO, DEMO_SUN, DemoReadOnlyError } from "./demo";
 import { lightGroups, withDimLevel, type DimLevels } from "./dimming";
 import { distributeEvenly } from "./fixtureArrangement";
 import { FixtureInspector } from "./FixtureInspector";
@@ -58,7 +59,7 @@ import { RoomRail } from "./RoomRail";
 import { DESIGN_STAGES, StageBar, type DesignStage } from "./StageBar";
 import { InstallationFiles, LayoutChecks, ReviewDock } from "./LightingReview";
 import { PlanLegend } from "./PlanLegend";
-import { mergeRoomDrafts, withRoomDraft, withoutRoomDraft, type RoomDrafts } from "./roomDrafts";
+import { mergeRoomDrafts, tagsOutsideRoom, withRoomDraft, withoutRoomDraft, type RoomDrafts } from "./roomDrafts";
 import { useLightingHistory, type LightingDraftSnapshot } from "./lightingHistory";
 import { lightingShortcut } from "./lightingShortcuts";
 import { useLoadState } from "./queryClient";
@@ -149,7 +150,7 @@ export function App() {
   const [stage, setStage] = useState<DesignStage>("light");
   const [showCoverage, setShowCoverage] = useState(false);
   const [showSun, setShowSun] = useState(false);
-  const [sunDate, setSunDate] = useState(today());
+  const [sunDate, setSunDate] = useState(DEMO ? (DEMO_SUN.dates[1] ?? today()) : today());
   const [sunMinutes, setSunMinutes] = useState(12 * 60);
   const [sunPlane, setSunPlane] = useState<"floor" | "task">("floor");
   const [baked, setBaked] = useState<LoadState<BakedLighting> | null>(null);
@@ -470,12 +471,25 @@ export function App() {
     return inside;
   }
 
+  // The installation export lists the whole home, so a new tag must be free in
+  // every room. Until the plan loads only this room is known; a save still checks.
+  function otherRoomTags(roomId: RoomId) {
+    return wholePlan.kind === "ready" ? tagsOutsideRoom(wholePlan.value, roomDraftsRef.current, roomId) : [];
+  }
+
   function addSpotlight(at?: { x: number; y: number }) {
     if (design.kind !== "ready") return;
     if (at !== undefined && !dropInsideCeiling(at)) return;
     rememberUndoPoint();
     const spec = selectedFixture?.kind === "recessed_spotlight" ? selectedFixture.spec : defaultSpec;
-    const fixture = newSpotlight(design.value, fixturesRef.current, at, spec, activeControlGroup());
+    const fixture = newSpotlight(
+      design.value,
+      fixturesRef.current,
+      at,
+      spec,
+      activeControlGroup(),
+      otherRoomTags(design.value.room.id),
+    );
     replaceFixtures([...fixturesRef.current, fixture]);
     setSelectedTags(new Set([fixture.tag]));
   }
@@ -484,7 +498,13 @@ export function App() {
     if (design.kind !== "ready") return;
     if (at !== undefined && !dropInsideCeiling(at)) return;
     rememberUndoPoint();
-    const fixture = newPendant(design.value, fixturesRef.current, at, activeControlGroup());
+    const fixture = newPendant(
+      design.value,
+      fixturesRef.current,
+      at,
+      activeControlGroup(),
+      otherRoomTags(design.value.room.id),
+    );
     replaceFixtures([...fixturesRef.current, fixture]);
     setSelectedTags(new Set([fixture.tag]));
   }
@@ -492,14 +512,25 @@ export function App() {
   function addRopeLight() {
     if (design.kind !== "ready") return;
     rememberUndoPoint();
-    const fixture = newRopeLight(design.value, fixturesRef.current, activeControlGroup());
+    const fixture = newRopeLight(
+      design.value,
+      fixturesRef.current,
+      activeControlGroup(),
+      otherRoomTags(design.value.room.id),
+    );
     replaceFixtures([...fixturesRef.current, fixture]);
     setSelectedTags(new Set([fixture.tag]));
   }
 
   function addWallSwitch() {
     if (design.kind !== "ready" || design.value.walls.length === 0) return;
-    const device = newWallSwitch(design.value, fixturesRef.current, switchesRef.current, activeControlGroup());
+    const device = newWallSwitch(
+      design.value,
+      fixturesRef.current,
+      switchesRef.current,
+      activeControlGroup(),
+      otherRoomTags(design.value.room.id),
+    );
     if (device === null) {
       setNotice("No wall segment is wide enough for a switch plate outside the room openings.");
       return;
@@ -571,12 +602,13 @@ export function App() {
   function addSensor() {
     if (design.kind !== "ready") return;
     rememberUndoPoint();
-    // A Tag is unique across the model, not the room, so the generator needs
-    // every room's tags: two PIR01s is not a model an electrician can work to.
-    const known = wholePlan.kind === "ready"
-      ? wholePlan.value.rooms.flatMap((entry) => [...entry.fixtures, ...entry.sensors])
-      : [...fixtures, ...sensors];
-    const sensor = newSensor(design.value, fixturesRef.current, sensorsRef.current, known, activeControlGroup());
+    const sensor = newSensor(
+      design.value,
+      fixturesRef.current,
+      sensorsRef.current,
+      otherRoomTags(design.value.room.id),
+      activeControlGroup(),
+    );
     const next = [...sensorsRef.current, sensor];
     setSensors(next);
     sensorsRef.current = next;
@@ -586,6 +618,7 @@ export function App() {
   }
   async function commit() {
     if (roomId === null || design.kind !== "ready") return;
+    const unsaved = draft;
     setDraft({ kind: "saving" });
     try {
       const response = await api.commit(roomId, fixtures, design.value.revision, switches, sensors);
@@ -609,7 +642,8 @@ export function App() {
       draftHistory.clear();
       setNotice(`Saved ${response.result.changed_ids.length} fixture changes to IFC.`);
     } catch (error) {
-      setDraft({ kind: "dirty" });
+      // The demo refuses before anything is sent, so the layout is exactly as it was.
+      setDraft(error instanceof DemoReadOnlyError ? unsaved : { kind: "dirty" });
       setNotice(errorMessage(error));
     }
   }
@@ -630,7 +664,14 @@ export function App() {
   }
 
   function duplicateSelection() {
-    const copies = duplicates(fixturesRef.current, switchesRef.current, selectedTags, snapMm);
+    if (design.kind !== "ready") return;
+    const copies = duplicates(
+      fixturesRef.current,
+      switchesRef.current,
+      selectedTags,
+      snapMm,
+      otherRoomTags(design.value.room.id),
+    );
     if (copies.length === 0) return;
     rememberUndoPoint();
     replaceFixtures([...fixturesRef.current, ...copies]);
@@ -1032,6 +1073,9 @@ export function App() {
                 <ReviewDock
                   draft={draft}
                   analysisPending={analysis.kind === "pending"}
+                  unavailableMessage={
+                    DEMO && analysis.kind === "error" && analysis.draftVersion === draftVersion ? analysis.message : null
+                  }
                   report={activeReport}
                   errorCount={errorCount}
                   lightCount={fixtures.length}

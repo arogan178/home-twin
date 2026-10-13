@@ -101,10 +101,18 @@ describe("selection edits", () => {
     const fixtures = [spotlight("SP01", 1000, 2000, { id: "3x$GlobalId", notes: ["keep off beam"] }), spotlight("SP02", 0, 0), rope];
     const selected = new Set([tag("SP01"), tag("RL01")]);
     expect(duplicableTags(fixtures, selected)).toEqual(["SP01"]);
-    const copies = duplicates(fixtures, [{ tag: "SP03" } as WallSwitch], selected, 250);
+    const copies = duplicates(fixtures, [{ tag: "SP03" } as WallSwitch], selected, 250, []);
     expect(copies).toHaveLength(1);
     expect(copies[0]).toMatchObject({ tag: "SP04", point: { x: 1250, y: 1750, z: 2700 }, notes: [] });
     expect(copies[0]).not.toHaveProperty("id");
+  });
+
+  it("gives a copy a tag no other room uses", () => {
+    // The demo's living room holds SP03-SP05 and the snug SP06-SP07.
+    const living = [spotlight("SP03", 0, 0), spotlight("SP04", 0, 0), spotlight("SP05", 0, 0)];
+    const snug = [{ tag: "SP06" }, { tag: "SP07" }, { tag: "SW03" }];
+    const copies = duplicates(living, [], new Set([tag("SP03")]), 250, snug);
+    expect(copies.map((copy) => copy.tag)).toEqual(["SP08"]);
   });
 
   it("renames a fixture unless the label is empty, unchanged, or taken", () => {

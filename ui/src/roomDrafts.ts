@@ -33,3 +33,14 @@ export function mergeRoomDrafts(plan: WholePlan, drafts: RoomDrafts): WholePlan 
   };
 }
 
+
+/** Every device tag outside `roomId`, saved or still an unsaved draft in this session. */
+export function tagsOutsideRoom(
+  plan: WholePlan,
+  drafts: RoomDrafts,
+  roomId: RoomId,
+): ReadonlyArray<{ readonly tag: string }> {
+  return mergeRoomDrafts(plan, drafts)
+    .rooms.filter((entry) => entry.room.id !== roomId)
+    .flatMap((entry) => [...entry.fixtures, ...entry.switches, ...entry.sensors]);
+}

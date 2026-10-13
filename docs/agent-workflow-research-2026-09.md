@@ -5,7 +5,7 @@
 
 This is a synthesis of first-party documentation, not a prevalence survey. “Common” below means a pattern recommended or implemented in the primary sources.
 
-## Executive conclusion
+## Conclusion
 
 The reliable pattern is a small production line:
 
@@ -15,7 +15,7 @@ task brief → isolated worker → focused verification → pull request
           → scheduled maintenance and encoded learnings
 ```
 
-The important boundary is between *parallel exploration* and *parallel mutation*. Several agents can investigate, review, test, or propose changes at once. Agents that edit need separate worktrees and branches, explicit file ownership, and a single integration path. The primary sources consistently warn that shared-file editing and uncontrolled coordination erase the benefit of parallelism.
+The boundary that decides the design is between *parallel exploration* and *parallel mutation*. Several agents can investigate, review, test, or propose changes at once. Agents that edit need separate worktrees and branches, explicit file ownership, and a single integration path. The primary sources consistently warn that shared-file editing and uncontrolled coordination erase the benefit of parallelism.
 
 ## Findings from primary sources
 
@@ -29,16 +29,16 @@ Anthropic’s first-party workflow documentation applies the same model to codin
 
 ### 2. Multi-agent work: coordinator, specialists, and bounded deliverables
 
-Anthropic documents two useful levels:
+Anthropic documents two levels:
 
 - **Subagents:** focused workers with their own context that return a result to the caller. They are suitable when only the answer matters or when exploration would flood the main context.
 - **Agent teams:** independent sessions coordinated by a lead, with a shared task list and direct messaging. They are suited to parallel research/review, separate modules, competing debugging hypotheses, and cross-layer work.
 
 The same documentation says teams cost more tokens and coordination, work best when tasks are independent, and should not be used for sequential work or same-file edits. It recommends starting with research and review, making tasks self-contained, assigning different file sets, monitoring progress, and synthesising results in the lead. [Claude Code subagents and teams](https://code.claude.com/docs/en/sub-agents) · [Claude Code agent teams](https://code.claude.com/docs/en/agent-teams)
 
-OpenAI’s current model guidance makes the same orchestration point explicit: instruct the model when parallel delegation is valuable, and calibrate verification to the risk and size of the change rather than running an indiscriminate full suite for every tiny edit. [OpenAI model guidance](https://developers.openai.com/api/docs/guides/latest-model)
+OpenAI’s current model guidance makes the same orchestration point: instruct the model when parallel delegation is valuable, and calibrate verification to the risk and size of the change rather than running an indiscriminate full suite for every tiny edit. [OpenAI model guidance](https://developers.openai.com/api/docs/guides/latest-model)
 
-**Practical task contract for every worker:** base commit, objective, files it owns, files it must not touch, acceptance command, expected artifact, and stop/report conditions. A useful task produces a commit, review report, test result, or clearly named proposal—not an unbounded “improve the repository”.
+**Practical task contract for every worker:** base commit, objective, files it owns, files it must not touch, acceptance command, expected artifact, and stop/report conditions. A useful task produces a commit, review report, test result, or clearly named proposal, not an unbounded “improve the repository”.
 
 ### 3. PRs and integration: make the default branch the queue
 
@@ -68,11 +68,11 @@ Interactive agent schedulers are useful for polling a live task, but they are no
 
 ### 6. Instructions and memory: global defaults, repository rules, path-scoped detail
 
-OpenAI documents a layered `AGENTS.md` model: a global file under `~/.codex` is loaded first, then one instruction file per directory from the project root to the current directory. Later, more-specific files are appended later and therefore take precedence; Codex also provides a size limit and fallback filename configuration. [OpenAI `AGENTS.md` guide](https://developers.openai.com/codex/guides/agents-md/)
+OpenAI documents a layered `AGENTS.md` model: a global file under `~/.codex` is loaded first, then one instruction file per directory from the project root to the current directory. More-specific files are appended later and therefore take precedence; Codex also provides a size limit and fallback filename configuration. [OpenAI `AGENTS.md` guide](https://developers.openai.com/codex/guides/agents-md/)
 
 Anthropic documents the equivalent split for Claude Code: project `CLAUDE.md` for shared rules, user-level instructions for personal defaults, path-scoped `.claude/rules/` for local detail, and user/project `.claude/agents/` for reusable specialist definitions. Claude Code can import `AGENTS.md` from `CLAUDE.md`, avoiding duplicated project rules. [Claude Code memory](https://code.claude.com/docs/en/memory) · [Claude Code subagents](https://code.claude.com/docs/en/sub-agents)
 
-The boundary matters: instruction and auto-memory files are context, not hard enforcement. Anthropic recommends hooks for rules that must hold regardless of model choice. CI, protected branches, permissions, and transactional application code should enforce invariants. Auto-memory is best for preferences, corrections, and context that cannot be derived from the repository; shared project facts belong in version control.
+Instruction and auto-memory files are context, not hard enforcement. Anthropic recommends hooks for rules that must hold regardless of model choice. CI, protected branches, permissions, and transactional application code should enforce invariants. Auto-memory is best for preferences, corrections, and context that cannot be derived from the repository; shared project facts belong in version control.
 
 ### 7. Durable improvement: turn feedback into executable or reviewable artifacts
 
@@ -99,19 +99,19 @@ GitHub Agentic Workflows extend this loop with scheduled or event-driven agents 
 
 ### Current baseline observed on 2026-09-15
 
-- The repository has a substantial root [`AGENTS.md`](../AGENTS.md), including IFC integrity, coordinate-frame, lighting-claim, testing, and worktree rules.
+- The repository has a root [`AGENTS.md`](../AGENTS.md), including IFC integrity, coordinate-frame, lighting-claim, testing, and worktree rules.
 - The main checkout is on a feature branch with uncommitted work; two linked T3 worktrees already exist.
 - There is no `.github/workflows/` directory yet.
 - Python supports `>=3.11,<3.15`; the project has `pytest` and `ruff` development commands. The UI has separate `test` and `build` scripts.
 
-This means the immediate bottleneck is not the ability to create more branches. It is the absence of a durable integration/verification lane and a global launcher that makes the safe lane cheap.
+So the immediate bottleneck is the absence of a durable integration/verification lane and a global launcher that makes the safe lane cheap, not the ability to create more branches.
 
 ### Target operating model
 
 1. **Global layer:** keep personal, cross-repository defaults in `~/.codex/AGENTS.md`: concise update style, default verification behaviour, worktree naming, no bare stash, and the standard task contract. If Claude Code is also used, keep reusable roles in `~/.claude/agents/` and make a project `CLAUDE.md` import the repository’s `AGENTS.md` rather than copying it.
 2. **Repository layer:** keep Home Twin’s source-of-truth and design constraints in the checked-in `AGENTS.md`. Add path-scoped guidance only where it reduces context or prevents a local class of mistake. Keep canonical IFC and reviewed plan-source mutations single-writer; let other agents analyse or prepare proposals in isolation.
 3. **Work layer:** use a stable integration checkout plus one worktree/branch per write-capable task. Name branches by intent, for example `agent/ui-ceiling`, `agent/ifc-validation`, and `agent/docs-lighting`. Give each agent explicit file ownership. Run separate UI/server ports and keep generated exports out of the merge path unless they are intentional artifacts.
-4. **Coordinator layer:** use a short-lived task ledger—issue, Markdown brief, or PR description—with base SHA, owner, files, acceptance command, and result. The coordinator integrates commits one at a time, reruns the relevant checks, and is the only lane allowed to update the shared integration branch.
+4. **Coordinator layer:** use a short-lived task ledger (issue, Markdown brief, or PR description) with base SHA, owner, files, acceptance command, and result. The coordinator integrates commits one at a time, reruns the relevant checks, and is the only lane allowed to update the shared integration branch.
 5. **Integration layer:** protect `main` with required PR review and required CI. Enable auto-merge for low-risk PRs only after checks are green. Defer a merge queue until PR concurrency justifies it; if enabled, add `merge_group` to every workflow that reports a required check.
 
 ### First CI set to add later
@@ -134,7 +134,7 @@ After CI is reliable, schedule:
 - a read-only weekly agent review for stale worktrees, failing checks, documentation drift, repeated test failures, and untested high-risk paths;
 - an agent-generated issue or PR containing evidence and a proposed minimal change, with human review before merge.
 
-The improvement agent should never silently rewrite `model/house.ifc` or `model/references/plan.yaml`. For this repository, the safe output is an issue, report, test, or reviewed transactional change—not an autonomous mutation of the canonical model.
+The improvement agent should never silently rewrite `model/house.ifc` or `model/references/plan.yaml`. For this repository, the safe output is an issue, report, test, or reviewed transactional change, not an autonomous mutation of the canonical model.
 
 ### What to measure
 

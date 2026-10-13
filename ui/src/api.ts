@@ -1,5 +1,7 @@
 import type { ZodType } from "zod";
 
+import { DEMO, DemoReadOnlyError, demoRequestUrl } from "./demo";
+
 import {
   AdoptResponseSchema,
   AnalysisResponseSchema,
@@ -39,7 +41,7 @@ export class ApiError extends Error {
 }
 
 async function request<T>(url: string, schema: ZodType<T>, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, init);
+  const response = await fetch(DEMO ? demoRequestUrl(url, init, import.meta.env.BASE_URL) : url, init);
   const raw: unknown = await response.json();
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
@@ -129,15 +131,14 @@ export const api = {
       DesignSchema,
       signal === undefined ? undefined : { signal },
     ),
-  analyse: (roomId: RoomId, fixtures: Fixture[], signal?: AbortSignal, switches: WallSwitch[] = []) =>
-    request(
-      `/api/rooms/${encodeURIComponent(roomId)}/analysis`,
-      AnalysisResponseSchema,
-      {
-        ...jsonBody({ fixtures: fixtures.map(fixturePayload), switches: switches.map(switchPayload) }),
-        ...(signal === undefined ? {} : { signal }),
-      },
-    ),
+  analyse: (roomId: RoomId, fixtures: Fixture[], signal?: AbortSignal, switches: WallSwitch[] = []) => {
+    const layout = { fixtures: fixtures.map(fixturePayload), switches: switches.map(switchPayload) };
+    if (DEMO) return demoAnalysis(roomId, layout, signal);
+    return request(`/api/rooms/${encodeURIComponent(roomId)}/analysis`, AnalysisResponseSchema, {
+      ...jsonBody(layout),
+      ...(signal === undefined ? {} : { signal }),
+    });
+  },
   bake: (roomId: RoomId, fixtures: Fixture[], stepMm: number, plane: "floor" | "task", signal?: AbortSignal) =>
     request(`/api/rooms/${encodeURIComponent(roomId)}/bake`, BakeResponseSchema, {
       ...jsonBody({ fixtures: fixtures.map(fixturePayload), step_mm: stepMm, plane }),
@@ -180,6 +181,7 @@ export const api = {
   adoptIfc: (importId: string, expectedRevision: Revision) =>
     request(`/api/imports/${encodeURIComponent(importId)}/adopt`, AdoptResponseSchema, jsonBody({ expected_revision: expectedRevision })),
   discardIfc: async (importId: string) => {
+    if (DEMO) return;
     await fetch(`/api/imports/${encodeURIComponent(importId)}`, { method: "DELETE" });
   },
   exports: (roomId: RoomId) =>
@@ -217,6 +219,7 @@ export const api = {
       }),
     ),
   discardUnderlay: async () => {
+    if (DEMO) return;
     await fetch("/api/trace/underlay", { method: "DELETE" });
   },
   uploadUnderlay: (file: File, widthPx: number, heightPx: number) => {
@@ -227,3 +230,15 @@ export const api = {
     return request("/api/trace/underlay", UnderlayUploadSchema, { method: "POST", body: form });
   },
 };
+
+// The demo recorded only the saved layout's analysis, so an edited layout has no honest answer.
+async function demoAnalysis(roomId: RoomId, layout: object, signal?: AbortSignal) {
+  const saved = await api.design(roomId, signal);
+  const savedLayout = { fixtures: saved.fixtures.map(fixturePayload), switches: saved.switches.map(switchPayload) };
+  if (JSON.stringify(savedLayout) !== JSON.stringify(layout)) throw new DemoReadOnlyError();
+  return request(
+    `/api/rooms/${encodeURIComponent(roomId)}/analysis`,
+    AnalysisResponseSchema,
+    signal === undefined ? undefined : { signal },
+  );
+}

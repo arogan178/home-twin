@@ -27,6 +27,7 @@ from home_twin.fixtures import (
 )
 from home_twin.lighting import validate_room_lighting, wall_switch_point
 from home_twin.model import HomeTwin, Point3D
+from home_twin.validation import LayoutRejected
 
 
 def test_one_physical_switch_can_control_multiple_spotlights(twin: HomeTwin) -> None:
@@ -388,6 +389,39 @@ def _two_rooms(path):
     return first.GlobalId, second.GlobalId
 
 
+def test_a_light_tag_cannot_repeat_in_another_room(sample_path) -> None:
+    """The installation export lists the whole home, so SP01 names one light."""
+    first, second = _two_rooms(sample_path)
+    twin = HomeTwin.open(sample_path)
+    ceiling_z = twin.get_room_context(second).ceiling.elevation_mm
+    clash = RoomLightingDesign(
+        second,
+        (PlannedSpotlight("SP01", second, Point3D(10000, 2000, ceiling_z), SpotlightSpec(), "SECOND_MAIN"),),
+    )
+
+    with pytest.raises(LayoutRejected) as rejected:
+        twin.apply_room_lighting_design(clash, expected_revision=twin.revision)
+
+    assert [(f.code, f.fixture_tags) for f in rejected.value.report.findings] == [
+        ("duplicate_fixture_tag", ("SP01",))
+    ]
+    reopened = HomeTwin.open(sample_path)
+    assert [f.tag for f in reopened.get_luminaires(second)] == [], "and nothing was written"
+    assert [f.tag for f in reopened.get_luminaires(first)] == ["SP01", "SP02"]
+
+
+def test_a_proposed_layout_skips_tags_used_in_other_rooms(sample_path) -> None:
+    first, second = _two_rooms(sample_path)
+    twin = HomeTwin.open(sample_path)
+
+    proposal = twin.optimise_spotlight_layout(second, SpotlightSpec())
+
+    tags = [fixture.tag for fixture in proposal.layout.fixtures]
+    assert tags[:2] == ["SP03", "SP04"]
+    assert {"SP01", "SP02"}.isdisjoint(tags)
+    assert twin.tags_outside_room(second) == {"SP01", "SP02"}
+
+
 def test_a_sensor_tag_cannot_repeat_in_another_room(sample_path) -> None:
     """A Tag is the label an electrician works to, so two PIR01s is not a model."""
     from home_twin.fixtures import PlannedSensor
@@ -424,8 +458,9 @@ def test_a_sensor_tag_cannot_repeat_in_another_room(sample_path) -> None:
             ),
         ),
     )
-    with pytest.raises(ValueError, match="already used in another room"):
+    with pytest.raises(LayoutRejected) as rejected:
         reopened.apply_room_lighting_design(clash, expected_revision=reopened.revision)
+    assert ("duplicate_fixture_tag", ("PIR50",)) in [(f.code, f.fixture_tags) for f in rejected.value.report.findings]
     assert [s.tag for s in HomeTwin.open(sample_path).get_sensors(second)] == [], "and nothing was written"
 
 

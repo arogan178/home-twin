@@ -2009,6 +2009,17 @@ class IfcRepository:
                 sensors.append(parsed)
         return tuple(sorted(sensors, key=lambda item: (item.tag, item.id)))
 
+    def get_installation_tags(self) -> tuple[tuple[str, str], ...]:
+        """Every tagged light, switch and sensor in a space, as (tag, room id) pairs."""
+
+        pairs = []
+        for ifc_class in ("IfcLightFixture", "IfcSwitchingDevice", "IfcSensor"):
+            for device in self.model.by_type(ifc_class):
+                container = element_util.get_container(device)
+                if device.Tag and container is not None and container.is_a("IfcSpace"):
+                    pairs.append((device.Tag, _entity_guid(container)))
+        return tuple(sorted(pairs))
+
     def get_wall_switches(self, room_id: str) -> tuple[WallSwitch, ...]:
         switches = []
         for device in self.model.by_type("IfcSwitchingDevice"):

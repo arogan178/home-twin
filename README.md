@@ -235,11 +235,9 @@ The next milestone is to review a room trace against its plan, add openings and 
 - measure the real finishes, state per-room reflectances, and record night meter readings;
 - improve non-rectangular and sloped-ceiling support;
 - add wall-washing and cross-room alignment constraints;
-- add IES or LDT point-grid photometry;
 - add a Radiance adapter for validated simulation;
 - map IFC objects to Home Assistant entities;
 - add an installation revision sheet and PDF packaging;
-- add a That Open Components 3D view without allowing browser-side IFC writes;
 - keep Unreal as an optional IFC to Bonsai to glTF, USD, or Datasmith pipeline.
 
 ## Licence

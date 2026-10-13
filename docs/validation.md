@@ -97,7 +97,7 @@ figure:
    `floor_reflectance` are typical decorated finishes, not measurements. They
    drive the interreflected term directly, and one dark feature wall moves the
    room average more than the difference between this split-flux term and full
-   radiosity. A `WallFace` may now carry its own `reflectance`, so a dark slatted
+   radiosity. A `WallFace` may now carry its own `reflectance`, so a dark
    feature wall is representable rather than averaged into the painted ones, but
    a declared value is still a guess until it is measured. `surface_materials`
    stays in the exclusions because reflectance is not the whole of a material:
@@ -152,8 +152,7 @@ out in both directions has a geometry or reflectance problem, and an unsigned
 average cannot tell them apart.
 
 The residual is the honest accuracy claim. Expect it to be dominated by
-reflectances and lamp tolerance rather than by the arithmetic, which is itself
-the finding.
+reflectances and lamp tolerance rather than by the arithmetic.
 
 ## Order of remaining work
 
@@ -184,12 +183,12 @@ meter, so it needs no calibration against an absolute standard.
    surface, and read the incident light.
 3. **Divide.** `ρ ≈ E_reflected / E_incident`.
 4. **Repeat at three spots per surface** and take the mean. Timber and stone
-   vary across a sheet, and a slatted wall varies most of all.
+   vary across a sheet, and a wall of joined panels can vary between them.
 
-Measure the slatted wall as built, slats and gaps together, rather than a
-sample of the timber. The gaps and the dark void behind them are part of what
-the room sees, and a reading off a single slat overstates the wall by more than
-the difference between any two interreflection methods.
+Measure the feature wall as built, panels and joints together, rather than a
+sample of the board. The feature wall is a flat Egger panel, not slats, since
+733e999. A reading off one offcut can miss what the room sees, and the error can
+exceed the difference between any two interreflection methods.
 
 Record the reading, the meter, and the date next to the value. A reflectance
 that does not say where it came from is the typical figure it replaced.

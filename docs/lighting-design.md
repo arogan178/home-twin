@@ -93,7 +93,7 @@ illuminance on the task area, so it is the figure that can be defended, and at
 800 mm it clears the bath rim, the vanity top and the cistern.
 
 **The floor plane earns its keep for two things only**: the night-time floor
-target — EN 12464-1 asks for 5 lx at floor level at 2200 to 3000 K — and seeing
+target (EN 12464-1 asks for 5 lx at floor level at 2200 to 3000 K) and seeing
 what furniture actually shades.
 
 **Read the floor number knowing what it counts.** Half the bathroom's floor
@@ -260,8 +260,8 @@ The term is **uniform by construction**. That is the assumption, not a result:
 it says nothing about where the bounce lands, so it cannot tell you that one
 corner is better lit than another. What it does fix is the previous claim that a
 fully shadowed point receives nothing, which no real room does. `Interreflection`
-carries its own exclusions — `directional_bounce`, `per_surface_materials`,
-`specular_reflection` — and the bake's method name changes when it is included.
+carries its own exclusions (`directional_bounce`, `per_surface_materials`,
+`specular_reflection`), and the bake's method name changes when it is included.
 
 ### Alignment
 
