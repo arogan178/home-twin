@@ -1,0 +1,146 @@
+/* --- narrower windows ---------------------------------------------------- */
+
+@media (max-width: 1080px) {
+  :root {
+    --rail-w: 184px;
+    --inspector-w: 264px;
+  }
+
+  .project-title small,
+  .revision-chip:not(.revision-chip--stale) {
+    display: none;
+  }
+
+  /* Docked, the rail never covers the plan. Only an empty inspector folds away. */
+  .inspector--empty {
+    display: none;
+  }
+
+  .right-rail:has(> .inspector--empty:only-child) {
+    display: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1080px) {
+  .app-shell:has(> .right-rail > .inspector--empty:only-child) {
+    grid-template-columns: var(--rail-w) minmax(0, 1fr) 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-shell--trace {
+    grid-template:
+      "topbar" var(--topbar-h)
+      "workspace" minmax(0, 1fr)
+      / 1fr;
+  }
+
+  .app-shell--trace .right-rail {
+    position: fixed;
+    z-index: 20;
+    top: 120px;
+    right: 10px;
+    bottom: 72px;
+    width: min(300px, calc(100vw - 20px));
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+  }
+
+  .trace-taskbar > span {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    grid-template:
+      "topbar" var(--topbar-h)
+      "workspace" minmax(0, 1fr)
+      "rooms" 60px
+      / minmax(0, 1fr);
+    min-height: 520px;
+  }
+
+  .app-shell:has(> .right-rail:empty) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .topbar {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+
+  .brand-mark {
+    padding: 0 var(--space-3);
+    border: 0;
+  }
+
+  .brand-mark span,
+  .topbar .button span {
+    display: none;
+  }
+
+  .room-rail {
+    flex-direction: row;
+    border-top: 1px solid var(--border);
+    border-right: 0;
+  }
+
+  .rail-heading,
+  .rail-foot {
+    display: none;
+  }
+
+  .room-rail nav {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .room-button {
+    min-width: 150px;
+    border-right: 1px solid var(--border);
+  }
+
+  .stage-bar {
+    flex-wrap: wrap;
+  }
+
+  .review-dock {
+    padding: var(--space-2);
+  }
+
+  .review-status {
+    display: none;
+  }
+
+  .right-rail {
+    position: fixed;
+    z-index: 20;
+    right: 8px;
+    bottom: 76px;
+    left: 8px;
+    max-height: min(480px, 60dvh);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+  }
+
+  .toast {
+    right: 8px;
+    bottom: 76px;
+    left: 8px;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

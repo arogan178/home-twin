@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home Twin: plan your home's lighting with your AI agent</title>
+  <meta name="description" content="Home Twin keeps your floor plan as an IFC building model on your own computer. You and your AI agent place lights on the same model, checked against the same rules, to the millimetre.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="masthead">
+    <a class="wordmark" href="./" aria-label="Home Twin home">Home Twin</a>
+    <nav aria-label="Primary">
+      <a href="https://github.com/arogan178/home-twin/tree/main/docs">Docs</a>
+      <a href="https://github.com/arogan178/home-twin">Source</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">Trace your home once. Plan its lighting with your AI agent, to the millimetre.</h1>
+        <p class="lede">Home Twin keeps your floor plan as an IFC building model on your own computer. You place lights on a plan or in 3D. Your agent places them through MCP. Both of you edit the same model, and every change passes the same checks before it is saved.</p>
+        <p class="actions">
+          <a class="button" href="https://github.com/arogan178/home-twin">Get the source</a>
+          <a class="quiet-link" href="#agent">See what your agent reads</a>
+        </p>
+      </div>
+
+      <figure class="plan" data-lights="off">
+        <svg class="rcp" viewBox="-760 -760 7520 5520" role="group" aria-labelledby="plan-title plan-desc">
+          <title id="plan-title">Reflected ceiling plan of the demo room</title>
+          <desc id="plan-desc">A 6000 by 4000 millimetre open-plan room with tall kitchen cabinetry on the north wall, an AC unit above it, and a dining table in the middle. Four recessed spotlights and one pendant. A wall switch on the west wall turns the main group on.</desc>
+          <defs>
+            <pattern id="hatch" width="120" height="120" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="120" class="hatch-line"/>
+            </pattern>
+            <radialGradient id="pool">
+              <stop offset="0" stop-color="#FFC783" stop-opacity="0.95"/>
+              <stop offset="0.55" stop-color="#FFC783" stop-opacity="0.55"/>
+              <stop offset="1" stop-color="#FFC783" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <g class="pools" aria-hidden="true">
+            <circle cx="2250" cy="1050" r="666"/>
+            <circle cx="3750" cy="1050" r="666"/>
+            <circle cx="1000" cy="3100" r="666"/>
+            <circle cx="5000" cy="3100" r="666"/>
+          </g>
+
+          <g class="fabric" aria-hidden="true">
+            <path class="wall" fill-rule="evenodd" d="M-100 -100 H6100 V4100 H-100 Z M0 0 V4000 H6000 V0 Z"/>
+            <rect class="joinery" x="1500" y="0" width="3000" height="600"/>
+            <rect class="above" x="4500" y="50" width="1000" height="250"/>
+            <line class="above" x1="0" y1="150" x2="6000" y2="150"/>
+            <rect class="furniture" x="2100" y="1550" width="1800" height="900"/>
+            <text class="note" x="3000" y="355">Tall cabinetry</text>
+            <text class="note" x="5000" y="470">AC unit</text>
+            <text class="note" x="3000" y="2370">Dining table</text>
+          </g>
+
+          <g class="dims" aria-hidden="true">
+            <line x1="0" y1="-450" x2="6000" y2="-450"/>
+            <line x1="0" y1="-560" x2="0" y2="-340"/>
+            <line x1="2250" y1="-560" x2="2250" y2="-340"/>
+            <line x1="3750" y1="-560" x2="3750" y2="-340"/>
+            <line x1="6000" y1="-560" x2="6000" y2="-340"/>
+            <text x="1125" y="-510">2250</text>
+            <text x="3000" y="-510">1500</text>
+            <text x="4875" y="-510">2250</text>
+            <line x1="0" y1="4450" x2="6000" y2="4450"/>
+            <line x1="0" y1="4340" x2="0" y2="4560"/>
+            <line x1="6000" y1="4340" x2="6000" y2="4560"/>
+            <text x="3000" y="4640">6000</text>
+            <line x1="-450" y1="0" x2="-450" y2="4000"/>
+            <line x1="-560" y1="0" x2="-340" y2="0"/>
+            <line x1="-560" y1="4000" x2="-340" y2="4000"/>
+            <text x="-520" y="2000" transform="rotate(-90 -520 2000)">4000</text>
+          </g>
+
+          <a class="fixture" href="#fx-SP01" data-fixture="SP01" aria-label="Spotlight SP01 at x 2250, y 2950 millimetres">
+            <circle class="hit" cx="2250" cy="1050" r="240"/>
+            <circle class="lamp" cx="2250" cy="1050" r="110"/>
+            <path class="cross" d="M2140 1050 H2360 M2250 940 V1160"/>
+            <text class="tag" x="2250" y="1330">SP01</text>
+          </a>
+          <a class="fixture" href="#fx-SP02" data-fixture="SP02" aria-label="Spotlight SP02 at x 3750, y 2950 millimetres">
+            <circle class="hit" cx="3750" cy="1050" r="240"/>
+            <circle class="lamp" cx="3750" cy="1050" r="110"/>
+            <path class="cross" d="M3640 1050 H3860 M3750 940 V1160"/>
+            <text class="tag" x="3750" y="1330">SP02</text>
+          </a>
+          <a class="fixture" href="#fx-SP03" data-fixture="SP03" aria-label="Spotlight SP03 at x 1000, y 900 millimetres">
+            <circle class="hit" cx="1000" cy="3100" r="240"/>
+            <circle class="lamp" cx="1000" cy="3100" r="110"/>
+            <path class="cross" d="M890 3100 H1110 M1000 2990 V3210"/>
+            <text class="tag" x="1000" y="3380">SP03</text>
+          </a>
+          <a class="fixture" href="#fx-SP04" data-fixture="SP04" aria-label="Spotlight SP04 at x 5000, y 900 millimetres">
+            <circle class="hit" cx="5000" cy="3100" r="240"/>
+            <circle class="lamp" cx="5000" cy="3100" r="110"/>
+            <path class="cross" d="M4890 3100 H5110 M5000 2990 V3210"/>
+            <text class="tag" x="5000" y="3380">SP04</text>
+          </a>
+          <a class="fixture" href="#fx-PN01" data-fixture="PN01" aria-label="Pendant PN01 at x 3000, y 2000 millimetres, hung at 1500">
+            <circle class="hit" cx="3000" cy="2000" r="240"/>
+            <circle class="pendant" cx="3000" cy="2000" r="120"/>
+            <circle class="pendant-core" cx="3000" cy="2000" r="40"/>
+            <text class="tag tag--side" x="3180" y="2060">PN01</text>
+          </a>
+
+          <g class="switch" role="button" tabindex="0" aria-pressed="false" aria-label="Wall switch S01. Switch the spotlights on">
+            <rect class="hit" x="-300" y="3200" width="620" height="600"/>
+            <line class="switch-lead" x1="0" y1="3500" x2="180" y2="3500"/>
+            <circle class="switch-body" cx="240" cy="3500" r="70"/>
+            <line class="switch-toggle" x1="240" y1="3500" x2="340" y2="3360"/>
+            <text class="tag tag--side" x="380" y="3640">S01</text>
+          </g>
+        </svg>
+        <figcaption>
+          <button class="switch-button" type="button" aria-pressed="false">Switch on</button>
+          <span>Hand-placed layout in the demo room that ships with Home Twin. Pools are each spotlight's 36° beam footprint on a 750 mm task plane: a lumen and beam-cone approximation, not a lux simulation. The pendant is drawn, not estimated.</span>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="sheet agent" id="agent" aria-labelledby="agent-title">
+      <div class="agent-copy">
+        <h2 id="agent-title">The same room, as your agent reads it</h2>
+        <p>Home Twin runs an MCP server beside the plan. Your agent asks for the room and gets the lights you see, in millimetres, with their IFC identities. When it moves one, the change goes through the same checks and the same verified save as yours.</p>
+        <p class="hint">Point at a light on the drawing to find it here.</p>
+      </div>
+      <figure class="transcript">
+        <figcaption><code>get_lighting_layout("Open plan")</code>, abridged</figcaption>
+<pre><code>{
+  "room_id": "0nNvfRhrPAtw4cmo52dcsY",
+  "fixtures": [<span class="entry" id="fx-SP01" data-fixture="SP01" tabindex="-1">    { "tag": "SP01", "kind": "recessed_spotlight",
+      "point": { "x": 2250.0, "y": 2950.0, "z": 2800.0 },
+      "spec": { "lumens": 650.0, "beam_angle_deg": 36.0,
+                "cct_kelvin": 3000, "cri": 90.0 },
+      "switching_group": "OPEN_PLAN_MAIN" },</span><span class="entry" id="fx-SP02" data-fixture="SP02" tabindex="-1">    { "tag": "SP02", "kind": "recessed_spotlight",
+      "point": { "x": 3750.0, "y": 2950.0, "z": 2800.0 },
+      "switching_group": "OPEN_PLAN_MAIN" },</span><span class="entry" id="fx-SP03" data-fixture="SP03" tabindex="-1">    { "tag": "SP03", "kind": "recessed_spotlight",
+      "point": { "x": 1000.0, "y": 900.0, "z": 2800.0 },
+      "switching_group": "OPEN_PLAN_MAIN" },</span><span class="entry" id="fx-SP04" data-fixture="SP04" tabindex="-1">    { "tag": "SP04", "kind": "recessed_spotlight",
+      "point": { "x": 5000.0, "y": 900.0, "z": 2800.0 },
+      "switching_group": "OPEN_PLAN_MAIN" },</span><span class="entry" id="fx-PN01" data-fixture="PN01" tabindex="-1">    { "tag": "PN01", "kind": "pendant_bulb",
+      "point": { "x": 3000.0, "y": 2000.0, "z": 1500.0 },
+      "switching_group": "DINING" }</span>  ]
+}</code></pre>
+      </figure>
+    </section>
+
+    <section class="sheet workflow" aria-labelledby="workflow-title">
+      <h2 id="workflow-title">From a scanned drawing to an electrician's schedule</h2>
+      <ol>
+        <li><strong>Trace the plan</strong> over a scan of the drawing, and check the scale against two printed dimensions.</li>
+        <li><strong>Build the model.</strong> The trace compiles into an IFC file that is reopened and verified before it replaces anything.</li>
+        <li><strong>Place the lights</strong>: spotlights, pendants, rope lights and switches, by hand or through your agent.</li>
+        <li><strong>Check the layout</strong> for spacing, wall clearance, cabinetry, shadow gaps and shadows cast by joinery.</li>
+        <li><strong>Export the schedule</strong> as CSV, JSON and SVG, with every light's tag and coordinates for the installer.</li>
+      </ol>
+    </section>
+
+    <section class="sheet limits" aria-labelledby="limits-title">
+      <h2 id="limits-title">What it won't claim</h2>
+      <dl>
+        <div>
+          <dt>It does not simulate lux.</dt>
+          <dd>Light estimates are a labelled lumen and beam-cone approximation. Every number and every picture of a light pool says which method made it.</dd>
+        </div>
+        <div>
+          <dt>It never guesses where you live.</dt>
+          <dd>Sun paths need the site and true north stated in the model. Without them, the sun panel says the site is unknown.</dd>
+        </div>
+        <div>
+          <dt>It is not BIM authoring software.</dt>
+          <dd>Straight walls, flat ceilings and rectangular openings are traced in the browser. Curved walls and sloped ceilings still belong in Bonsai.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="sheet install" aria-labelledby="install-title">
+      <h2 id="install-title">Run it on your own computer</h2>
+      <p>Home Twin is a local web app. The server listens only on your machine, and your model stays a file you own.</p>
+<pre><code>git clone https://github.com/arogan178/home-twin
+cd home-twin
+npm --prefix ui ci &amp;&amp; npm --prefix ui run build
+uv sync --extra dev
+uv run python scripts/create_sample_ifc.py --force
+uv run home-twin-ui --model model/house.ifc</code></pre>
+      <p class="small">Needs Python 3.11 or newer, Node.js 22.12 or newer, and uv. Point your agent at <code>uv run home-twin-mcp --model model/house.ifc</code>.</p>
+    </section>
+  </main>
+
+  <footer class="colophon">
+    <p>Home Twin is open source under the Apache 2.0 licence, and built on IfcOpenShell.</p>
+  </footer>
+</body>
+</html>

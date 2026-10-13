@@ -1,0 +1,125 @@
+/* --- plan and 3D views ---------------------------------------------------- */
+
+.daylight-source polygon {
+  fill: url("#daylight-hatch");
+  stroke: #4d94ad;
+  stroke-width: 16;
+  stroke-dasharray: 36 22;
+}
+
+.plan-opening line {
+  stroke: #168aad;
+  stroke-width: 42;
+  stroke-linecap: square;
+}
+
+.plan-opening--sliding_door line {
+  stroke: #0b6f91;
+  stroke-width: 54;
+  stroke-dasharray: 120 28;
+}
+
+.plan-opening--door line {
+  stroke: #7a6a52;
+  stroke-width: 46;
+}
+
+.legend-swatch--door {
+  border-color: #7a6a52;
+  background: #cbbfa8;
+}
+
+.dark-zone circle {
+  fill: #7d3ce8;
+  fill-opacity: 0.22;
+}
+
+.dark-zone path {
+  fill: none;
+  stroke: #6f34c7;
+  stroke-width: 7;
+}
+
+.legend-swatch--beam {
+  border: 1px dashed #b98200;
+  background: rgb(255 212 90 / 45%);
+}
+
+.legend-swatch--fixture {
+  border-radius: 50%;
+  border-color: var(--marker);
+  background: white;
+}
+
+.legend-swatch--cabinet {
+  background: #9cafaa;
+}
+
+.legend-swatch--service {
+  background: #b9c8e2;
+}
+
+.legend-swatch--sensor {
+  background: #cbd9c2;
+  border-color: #4d7a3a;
+}
+
+.legend-swatch--daylight {
+  border-color: #168aad;
+  background: repeating-linear-gradient(45deg, #d9edf5 0 2px, #4d94ad 2px 3px);
+}
+
+/* --- rendered light and sun in the plan ---------------------------------- */
+
+.coverage-layer rect {
+  shape-rendering: crispEdges;
+}
+
+.legend-swatch--sun {
+  border-color: #d99b1f;
+  background: rgb(255 214 122 / 70%);
+}
+
+.legend-swatch--coverage {
+  border-color: #b98200;
+  background: linear-gradient(90deg, #4a3c10, #ffd166);
+}
+
+/* --- plan zoom control --------------------------------------------------- */
+
+/* --- stairs in plan ------------------------------------------------------ */
+
+.plan-stair polygon {
+  fill: rgb(120 134 148 / 16%);
+  stroke: #56666f;
+  stroke-width: 22;
+}
+
+.plan-stair line {
+  stroke: #56666f;
+  stroke-width: 14;
+}
+
+.legend-swatch--stair {
+  border-color: #56666f;
+  background: repeating-linear-gradient(90deg, #b6c0c6 0 3px, #7c8b95 3px 4px);
+}
+
+/* --- whole-floor view ---------------------------------------------------- */
+
+.plan-soffit polygon {
+  fill: rgb(196 160 96 / 16%);
+  stroke: #a4854d;
+  stroke-width: calc(var(--mm-per-px, 8) * 1.2px);
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 5px) calc(var(--mm-per-px, 8) * 3px);
+}
+
+.plan-soffit--bulkhead polygon {
+  fill: rgb(196 160 96 / 30%);
+}
+
+.wall-body {
+  fill: #cfd6d5;
+  stroke: none;
+  pointer-events: none;
+}

@@ -1,0 +1,32 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+ui/dist/
+node_modules/
+model/backups/*.ifc
+model/m1-draft.ifc
+model/draft.ifc
+# Ad-hoc snapshots taken before a mutation; the scripts rebuild the draft.
+model/*.bak-*
+# Exports are derived and reproducible from IFC. These patterns need ** or they
+# only match the top level, and every study lives in its own subdirectory.
+exports/**/*.csv
+exports/**/*.json
+exports/**/*.svg
+exports/**/*.obj
+exports/**/*.png
+exports/**/*.jpg
+exports/**/*.ifc
+exports/**/*.pdf
+exports/**/*.html
+!exports/.gitkeep
+
+# Serena MCP cache
+.serena/

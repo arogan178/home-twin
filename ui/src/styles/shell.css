@@ -1,0 +1,99 @@
+/* --- shell --------------------------------------------------------------- */
+
+.app-shell {
+  display: grid;
+  grid-template:
+    "topbar topbar topbar" var(--topbar-h)
+    "rooms workspace inspector" minmax(0, 1fr)
+    / var(--rail-w) minmax(0, 1fr) var(--inspector-w);
+  height: 100dvh;
+  min-height: 560px;
+  background: var(--surface-0);
+  overflow: hidden;
+}
+
+/* A rail with nothing to show gives its width back to the canvas. */
+.app-shell:has(> .right-rail:empty) {
+  grid-template-columns: var(--rail-w) minmax(0, 1fr) 0;
+}
+
+.right-rail:empty {
+  display: none;
+}
+
+.topbar {
+  grid-area: topbar;
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding-right: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.brand-mark {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-4);
+  border-right: 1px solid var(--border);
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.brand-mark svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.project-title {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.project-title span {
+  overflow: hidden;
+  font-size: var(--text-md);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-title small {
+  flex: none;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.revision-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 24px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.revision-chip--stale {
+  border-color: #f2b8a2;
+  background: var(--danger-soft);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  color: var(--danger);
+}

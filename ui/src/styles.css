@@ -1,0 +1,16 @@
+/* Order matters: later partials rely on the cascade of earlier ones. */
+@import "./styles/base.css";
+@import "./styles/shell.css";
+@import "./styles/room-rail.css";
+@import "./styles/workspace.css";
+@import "./styles/canvas.css";
+@import "./styles/review-dock.css";
+@import "./styles/buttons.css";
+@import "./styles/right-rail.css";
+@import "./styles/rail-panels.css";
+@import "./styles/switch-groups.css";
+@import "./styles/daylight-panels.css";
+@import "./styles/states-and-dialogs.css";
+@import "./styles/tracing.css";
+@import "./styles/narrow-windows.css";
+@import "./styles/plan-views.css";

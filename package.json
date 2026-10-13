@@ -1,0 +1,11 @@
+{
+  "name": "home-twin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --cwd=ui run dev",
+    "build": "bun --cwd=ui run build",
+    "preview": "bun --cwd=ui run preview",
+    "test": "bun --cwd=ui run test"
+  }
+}

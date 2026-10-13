@@ -1,0 +1,695 @@
+/* 2D plans: the room ceiling plan and the whole-floor plan.
+   Plan geometry is drawn in millimetres, so every stroke and label that should
+   read the same at any zoom is sized as screen pixels times --mm-per-px. */
+
+.ceiling-plan {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+}
+
+/* --- grid and room ------------------------------------------------------- */
+
+.grid-line {
+  fill: none;
+}
+
+.grid-line--minor {
+  stroke: #d9e3e1;
+  stroke-width: calc(var(--mm-per-px, 8) * 0.6px);
+}
+
+.grid-line--major {
+  stroke: #c6d3d0;
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+}
+
+.ceiling-fill {
+  fill: #fbfdfc;
+  stroke: #203b50;
+  stroke-width: calc(var(--mm-per-px, 8) * 1.25px);
+}
+
+.wall-line {
+  stroke: var(--ink);
+  stroke-width: calc(var(--mm-per-px, 8) * 2.5px);
+  stroke-linecap: square;
+}
+
+.daylight-hatch-line {
+  stroke: #4d94ad;
+  stroke-width: 12;
+}
+
+.plan-door-swing {
+  fill: none;
+  stroke: #a08c6e;
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 5px) calc(var(--mm-per-px, 8) * 3px);
+}
+
+/* --- objects ------------------------------------------------------------- */
+
+.plan-object {
+  fill: #d4dddb;
+  stroke: #7e918e;
+  stroke-width: calc(var(--mm-per-px, 8) * 0.75px);
+}
+
+.plan-object--cabinet {
+  fill: #a9bab6;
+  stroke: #607672;
+}
+
+.plan-object--furniture {
+  fill: #e4e9e7;
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 3px) calc(var(--mm-per-px, 8) * 2px);
+}
+
+.plan-object--shadow-gap {
+  fill: var(--yellow);
+  fill-opacity: 0.55;
+  stroke: #a97600;
+}
+
+.plan-object--service {
+  fill: #b9c8e2;
+  stroke: var(--blue);
+}
+
+/* Above the finished ceiling: a dashed outline, so it never hides the marks below. */
+.plan-object--above-ceiling {
+  fill: none;
+  stroke: var(--blue);
+  stroke-opacity: 0.55;
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 4px) calc(var(--mm-per-px, 8) * 3px);
+}
+
+/* A line set drawn at its gypsum box's width, in plan millimetres. */
+.plan-object--route {
+  fill: none;
+  stroke-width: 150;
+  stroke-opacity: 0.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* --- labels -------------------------------------------------------------- */
+
+.plan-label {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: #fbfdfc;
+  stroke-width: calc(var(--mm-per-px, 8) * 3px);
+  stroke-linejoin: round;
+  stroke-opacity: 0.9;
+}
+
+.fixture-label {
+  fill: var(--ink);
+}
+
+.fixture-label--selected {
+  fill: var(--marker-dark);
+}
+
+.object-label {
+  fill: #3d5868;
+  font-weight: 400;
+}
+
+.wall-dimension {
+  fill: #18384d;
+}
+
+.opening-label {
+  fill: #2f718a;
+}
+
+.opening-label--door {
+  fill: #6b5b45;
+}
+
+.soffit-label {
+  fill: #7a6231;
+}
+
+.shaft-label {
+  fill: #2f718a;
+}
+
+/* --- marks --------------------------------------------------------------- */
+
+.plan-mark {
+  outline: none;
+  cursor: pointer;
+}
+
+.mark-focus-ring {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: calc(var(--mm-per-px, 8) * 2px);
+  opacity: 0;
+}
+
+.plan-mark:focus-visible .mark-focus-ring {
+  opacity: 1;
+}
+
+.fixture-hit {
+  fill: transparent;
+  stroke: transparent;
+  cursor: grab;
+}
+
+.fixture-hit:active {
+  cursor: grabbing;
+}
+
+.fixture-beam {
+  fill: url("#beam-glow");
+  stroke: #d39900;
+  stroke-width: calc(var(--mm-per-px, 8) * 0.75px);
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 3px) calc(var(--mm-per-px, 8) * 2px);
+}
+
+.fixture-beam--selected {
+  fill-opacity: 1;
+  stroke: var(--marker-dark);
+  stroke-width: calc(var(--mm-per-px, 8) * 1.5px);
+}
+
+.fixture-mark {
+  fill: #fff;
+  stroke: var(--marker);
+  stroke-width: calc(var(--mm-per-px, 8) * 1.75px);
+  transition: fill 120ms ease, stroke-width 120ms ease;
+}
+
+.fixture-cross {
+  fill: none;
+  stroke: var(--marker-dark);
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+}
+
+.fixture:hover .fixture-mark {
+  fill: #ffe9e3;
+  stroke-width: calc(var(--mm-per-px, 8) * 2.5px);
+}
+
+.fixture--selected .fixture-mark,
+.fixture--selected:hover .fixture-mark {
+  fill: var(--marker);
+  stroke: var(--ink);
+  stroke-width: calc(var(--mm-per-px, 8) * 1.5px);
+}
+
+.fixture--selected .fixture-cross {
+  stroke: white;
+}
+
+.fixture--pendant .fixture-mark {
+  fill: #fff5cf;
+  stroke: #a8641f;
+}
+
+.fixture--pendant.fixture--selected .fixture-mark {
+  fill: #f0a52d;
+  stroke: var(--ink);
+}
+
+.fixture-glow {
+  mix-blend-mode: screen;
+}
+
+.rope-light-mark {
+  stroke: #f0a52d;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 18px rgb(255 185 63 / 55%));
+  cursor: pointer;
+}
+
+.fixture--selected .rope-light-mark {
+  stroke: var(--marker-dark);
+}
+
+.fixture:focus-visible .rope-light-mark {
+  stroke: var(--blue);
+}
+
+.sensor-body {
+  fill: #e7efe1;
+  stroke: #4d7a3a;
+  stroke-width: calc(var(--mm-per-px, 8) * 1.25px);
+}
+
+.sensor-wave {
+  fill: none;
+  stroke: #4d7a3a;
+  stroke-width: calc(var(--mm-per-px, 8) * 0.9px);
+  stroke-opacity: 0.75;
+}
+
+.sensor-mark:hover .sensor-body {
+  fill: #d9e7d0;
+}
+
+.sensor-mark--selected .sensor-body {
+  fill: #b9d0ab;
+  stroke-width: calc(var(--mm-per-px, 8) * 2px);
+}
+
+.wall-switch {
+  cursor: pointer;
+}
+
+.wall-switch rect {
+  fill: #f9f5eb;
+  stroke: #394b54;
+  stroke-width: calc(var(--mm-per-px, 8) * 1.25px);
+}
+
+.wall-switch path {
+  fill: none;
+  stroke: #394b54;
+  stroke-width: calc(var(--mm-per-px, 8) * 1.25px);
+  stroke-linecap: round;
+}
+
+.wall-switch:hover rect {
+  fill: #fff0cc;
+}
+
+.wall-switch--selected rect {
+  fill: #ffd278;
+  stroke: var(--marker-dark);
+  stroke-width: calc(var(--mm-per-px, 8) * 2px);
+}
+
+.wall-switch:focus-visible rect {
+  stroke: var(--blue);
+  stroke-width: calc(var(--mm-per-px, 8) * 2.5px);
+}
+
+/* The line is the reason a light stopped where it did, so it reads over the
+   plan rather than sitting in it. */
+.alignment-guide {
+  stroke: #e5397f;
+  stroke-width: calc(var(--mm-per-px, 8) * 1.4px);
+  stroke-linecap: round;
+}
+
+.plan-marquee {
+  fill: var(--marker);
+  fill-opacity: 0.08;
+  stroke: var(--marker-dark);
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 4px) calc(var(--mm-per-px, 8) * 3px);
+}
+
+.plan-stair-arrow {
+  fill: none;
+  stroke: #2f4a5c;
+  stroke-width: calc(var(--mm-per-px, 8) * 2px);
+  stroke-linecap: round;
+  marker-end: url(#stair-arrow);
+}
+
+/* --- sun ----------------------------------------------------------------- */
+
+.sun-patch {
+  fill: rgb(255 214 122 / 55%);
+  stroke: #d99b1f;
+  stroke-width: calc(var(--mm-per-px, 8) * 0.75px);
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 4px) calc(var(--mm-per-px, 8) * 2px);
+}
+
+/* --- screen-fixed controls ----------------------------------------------- */
+
+.plan-chrome {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.plan-chrome > * {
+  pointer-events: auto;
+}
+
+.plan-zoom {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgb(140 160 158 / 70%);
+  background: rgb(245 248 247 / 92%);
+  backdrop-filter: blur(8px);
+}
+
+.plan-zoom button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 24px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.plan-zoom button:hover {
+  background: var(--paper-blue);
+  color: var(--blue-dark);
+}
+
+.plan-zoom span {
+  min-width: 44px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.plan-compass {
+  display: block;
+  overflow: visible;
+}
+
+.plan-compass .north-dial {
+  fill: rgb(245 248 247 / 88%);
+  stroke: var(--line-dark);
+  stroke-width: 1;
+}
+
+.north-needle {
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.north-letter {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.sun-ray {
+  stroke: #d99b1f;
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+
+.sun-disc {
+  fill: var(--yellow);
+  stroke: #b98200;
+  stroke-width: 1;
+}
+
+.plan-scale {
+  display: block;
+  padding: 0 4px;
+  background: rgb(245 248 247 / 82%);
+}
+
+.plan-scale path {
+  fill: none;
+  stroke: #506a72;
+  stroke-width: 1.5;
+}
+
+.plan-scale text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: #506a72;
+}
+
+/* The tips sit in a strip above the drawing rather than over it. */
+.plan-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-body {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.plan-hint {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  padding: 5px 6px 5px 12px;
+  border-bottom: 1px solid rgb(140 160 158 / 45%);
+  background: rgb(245 248 247 / 94%);
+  font-size: 11px;
+  line-height: 1.45;
+  color: #415968;
+}
+
+.plan-frame > .plan-hint,
+.plan-chrome .plan-zoom {
+  position: static;
+  max-width: none;
+}
+
+.plan-hint > svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.plan-hint p {
+  flex: 1;
+  margin: 0;
+}
+
+.plan-chrome-row {
+  display: flex;
+  gap: 6px;
+}
+
+.plan-hint-close,
+.plan-hint-toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.plan-hint-close {
+  width: 22px;
+  height: 22px;
+}
+
+.plan-hint-toggle {
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgb(140 160 158 / 70%);
+  background: rgb(245 248 247 / 92%);
+}
+
+.plan-hint-close:hover,
+.plan-hint-toggle:hover {
+  background: var(--paper-blue);
+  color: var(--blue-dark);
+}
+
+/* --- whole-floor plan ---------------------------------------------------- */
+
+.whole-room polygon {
+  fill: #dfd8cc;
+  stroke: #5b6a72;
+  stroke-width: calc(var(--mm-per-px, 8) * 1.25px);
+  cursor: pointer;
+}
+
+.whole-room--raised polygon {
+  fill: #f0ece3;
+}
+
+.whole-room:hover polygon {
+  fill: #e8dcc2;
+}
+
+.whole-room--selected polygon {
+  fill: rgb(255 209 102 / 55%);
+  stroke: var(--marker-dark);
+  stroke-width: calc(var(--mm-per-px, 8) * 2.5px);
+}
+
+.whole-room--outdoor polygon {
+  fill: #dfe6dc;
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 7px) calc(var(--mm-per-px, 8) * 5px);
+}
+
+.whole-room-label {
+  font-family: "Archivo Variable", sans-serif;
+  font-weight: 640;
+  fill: #33454f;
+  paint-order: stroke;
+  stroke: #f5f2ec;
+  stroke-width: calc(var(--mm-per-px, 8) * 3px);
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.whole-room-note {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  fill: #4f616b;
+  paint-order: stroke;
+  stroke: #f5f2ec;
+  stroke-width: calc(var(--mm-per-px, 8) * 3px);
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.whole-leader {
+  stroke: #5b6a72;
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+  pointer-events: none;
+}
+
+.whole-leader-dot {
+  fill: #33454f;
+  stroke: #f5f2ec;
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+  pointer-events: none;
+}
+
+.whole-wall {
+  fill: #33454f;
+  stroke: none;
+  pointer-events: none;
+}
+
+.whole-stair {
+  fill: rgb(120 134 148 / 22%);
+  stroke: #56666f;
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+  pointer-events: none;
+}
+
+.whole-opening {
+  stroke: #7a6a52;
+  stroke-width: calc(var(--mm-per-px, 8) * 3px);
+  pointer-events: none;
+}
+
+.whole-opening--window,
+.whole-opening--sliding_door {
+  stroke: #168aad;
+}
+
+.whole-opening--unfilled {
+  stroke: #9aa7ad;
+  stroke-dasharray: calc(var(--mm-per-px, 8) * 6px) calc(var(--mm-per-px, 8) * 4px);
+}
+
+.whole-fixture {
+  fill: var(--marker);
+  stroke: white;
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+  pointer-events: none;
+}
+
+.whole-fixture--pendant_bulb {
+  fill: #f0a52d;
+  stroke: #fff5cf;
+}
+
+.whole-rope-light {
+  fill: none;
+  stroke: #f0a52d;
+  stroke-width: 55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.whole-fixture--off,
+.whole-rope-light.whole-fixture--off {
+  fill: #768086;
+  stroke: #768086;
+  opacity: 0.62;
+  filter: none;
+}
+
+.whole-switch {
+  fill: #fff6df;
+  stroke: #394b54;
+  stroke-width: calc(var(--mm-per-px, 8) * 1px);
+  cursor: pointer;
+}
+
+.whole-switch--off {
+  fill: #6f777b;
+}
+
+/* The whole-floor toolbar keeps "Back to one room" and Gypsum readable, and
+   folds the other toggles to icons first; each keeps its label as its name. */
+@container toolbar (max-width: 1000px) {
+  .whole-toolbar .room-context .eyebrow,
+  .whole-toolbar-levels {
+    display: none;
+  }
+
+  .whole-toolbar .time-control {
+    grid-template-columns: auto 38px 64px;
+  }
+
+  .whole-toolbar .segmented .tool-label,
+  .whole-fold .tool-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+}
+
+/* --- trace point order --------------------------------------------------- */
+
+.point-order {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.point-order li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.point-order .chip {
+  flex: 1;
+  text-align: left;
+}

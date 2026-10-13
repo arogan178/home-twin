@@ -1,0 +1,103 @@
+/* --- canvas -------------------------------------------------------------- */
+
+.plan-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--canvas);
+}
+
+.plan-stage--with-legend {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+}
+
+.plan-canvas {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* The legend sits under the plan, so it never covers geometry. */
+.plan-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-2);
+  border-top: 1px solid var(--border);
+  background: var(--surface-1);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.plan-legend span,
+.plan-caption span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plan-legend-keys {
+  display: contents;
+}
+
+.plan-legend-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-legend-toggle:hover {
+  background: var(--surface-hover);
+}
+
+.plan-legend-chevron {
+  transition: transform 120ms ease;
+}
+
+.plan-legend-toggle[aria-expanded="true"] .plan-legend-chevron {
+  transform: rotate(180deg);
+}
+
+.legend-number {
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+
+/* The whole-floor view still overlays its caption on the plan. */
+.plan-caption {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  max-width: calc(100% - 24px);
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgb(248 249 250 / 92%);
+  backdrop-filter: blur(8px);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+}

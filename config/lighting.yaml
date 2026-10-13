@@ -1,0 +1,7 @@
+schema_version: 1
+defaults:
+  target_lux: 180
+  task_plane_height_mm: 800
+  utilization_factor: 0.55
+  grid_step_mm: 500
+

@@ -1,0 +1,46 @@
+schema_version: 1
+lighting:
+  # 250 mm, not 400 or 600. The buildable limit is the wall plate and the cut-out,
+  # and the scallop 600 mm guarded against is wanted here, where a cove strip
+  # washes the slanting wall; 600 mm is also unreachable in the 1,020 mm
+  # corridor, whose centre line is 510 mm from each face. 400 then had to give
+  # too: the bathroom's mirror fitting sits over the basin, 270 mm off the wall,
+  # because that is the only ceiling position that lights the front of a face
+  # rather than the back of a head. Relaxing this cannot invalidate a layout
+  # that already passes, and every fitting still states its own distance to the
+  # two nearest walls on the installation sheet.
+  wall_clearance_mm: 250
+  # 700 mm: a 2x4 downlight grid at 759 mm centres is ordinary, not crowded.
+  minimum_spacing_mm: 700
+  obstruction_clearance_mm: 150
+  shadow_gap_clearance_mm: 200
+  alignment_tolerance_mm: 30
+  collision_tolerance_mm: 2
+  # A quoted lux figure is maintained, not initial: 0.8 is the product of an
+  # LED's lamp lumen maintenance, luminaire dirt depreciation, and room surface
+  # depreciation in a clean domestic interior. It is a stated allowance, not a
+  # measurement of these luminaires.
+  maintenance_factor: 0.8
+  # Statistics are quoted over the room minus this perimeter band, because an
+  # average that includes the strip against the wall is a function of the
+  # room's shape. A space narrower than 1,000 mm has no task area left and
+  # reports none rather than quoting the whole room.
+  task_area_border_mm: 500
+  # These drive the interreflected term, which is the largest single source of
+  # error in a room lux figure, so stating them beats refining the solver.
+  #
+  # The ceilings are brilliant white throughout, owner-stated at an LRV of 88 to
+  # 89; 0.885 is the middle of that. The walls are NCS S 1002-Y everywhere
+  # except the tiled rooms and the shaft, and each of those rooms states its own
+  # finish, so the project wall figure is only the fallback for a room that
+  # states nothing.
+  ceiling_reflectance: 0.885
+  wall_reflectance: 0.72
+  floor_reflectance: 0.2
+  avoid_object_kinds:
+    - cabinet
+    - shadow_gap
+    - ac
+    - beam
+    - duct
+
